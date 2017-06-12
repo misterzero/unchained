@@ -1,0 +1,14 @@
+version: '2'
+services:
+    unchained-app:
+        image: unchained
+        environment:
+            - SPRING_PROFILES_ACTIVE=prod,swagger
+            - SPRING_DATASOURCE_URL=jdbc:mariadb://unchained-mariadb:3306/unchained
+            - JHIPSTER_SLEEP=10 # gives time for the database to boot before the application
+        ports:
+            - 8080:8080
+    unchained-mariadb:
+        extends:
+            file: mariadb.yml
+            service: unchained-mariadb
