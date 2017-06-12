@@ -1,3 +1,12 @@
+# to start a fabric network
+In a terminal navigate to <project home>/src/test/fixture/sdkintegration
+run ./fabric.sh up
+
+A local fabric instance should be running
+
+To stop the instance, run ./fabric.sh down
+
+
 # unchained
 This application was generated using JHipster 4.5.3, you can find documentation and help at [https://jhipster.github.io/documentation-archive/v4.5.3](https://jhipster.github.io/documentation-archive/v4.5.3).
 
