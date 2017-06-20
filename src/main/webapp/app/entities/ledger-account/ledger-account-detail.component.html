@@ -1,0 +1,29 @@
+
+<div *ngIf="ledgerAccount">
+    <h2><span jhiTranslate="unchainedApp.ledgerAccount.detail.title">Ledger Account</span> {{ledgerAccount.id}}</h2>
+    <hr>
+    <jhi-alert-error></jhi-alert-error>
+    <dl class="row-md jh-entity-details">
+        <dt><span jhiTranslate="unchainedApp.ledgerAccount.name">Name</span></dt>
+        <dd>
+            <span>{{ledgerAccount.name}}</span>
+        </dd>
+        <dt><span jhiTranslate="unchainedApp.ledgerAccount.value">Value</span></dt>
+        <dd>
+            <span>{{ledgerAccount.value}}</span>
+        </dd>
+    </dl>
+
+    <button type="submit"
+            (click)="previousState()"
+            class="btn btn-info">
+        <span class="fa fa-arrow-left"></span>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
+    </button>
+
+    <button type="button"
+            [routerLink]="['/', { outlets: { popup: 'ledger-account/'+ ledgerAccount.id + '/edit'} }]"
+            replaceUrl="true"
+            class="btn btn-primary">
+        <span class="fa fa-pencil"></span>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
+    </button>
+</div>

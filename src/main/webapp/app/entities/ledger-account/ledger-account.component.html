@@ -1,0 +1,58 @@
+<div>
+    <h2>
+        <span jhiTranslate="unchainedApp.ledgerAccount.home.title">Ledger Accounts</span>
+        <button class="btn btn-primary float-right create-ledger-account" [routerLink]="['/', { outlets: { popup: ['ledger-account-new'] } }]">
+            <span class="fa fa-plus"></span>
+            <span  jhiTranslate="unchainedApp.ledgerAccount.home.createLabel">
+            Create new Ledger Account
+            </span>
+        </button>
+    </h2>
+    <jhi-alert></jhi-alert>
+    <div class="row">
+    </div>
+    <br/>
+    <div class="table-responsive" *ngIf="ledgerAccounts">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+            <th><span jhiTranslate="global.field.id">ID</span></th>
+            <th><span jhiTranslate="unchainedApp.ledgerAccount.name">Name</span></th>
+            <th><span jhiTranslate="unchainedApp.ledgerAccount.value">Value</span></th>
+            <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let ledgerAccount of ledgerAccounts ;trackBy: trackId">
+                <td><a [routerLink]="['../ledger-account', ledgerAccount.id ]">{{ledgerAccount.id}}</a></td>
+                <td>{{ledgerAccount.name}}</td>
+                <td>{{ledgerAccount.value}}</td>
+                <td class="text-right">
+                    <div class="btn-group flex-btn-group-container">
+                        <button type="submit"
+                                [routerLink]="['../ledger-account', ledgerAccount.id ]"
+                                class="btn btn-info btn-sm">
+                            <span class="fa fa-eye"></span>
+                            <span class="hidden-md-down" jhiTranslate="entity.action.view">View</span>
+                        </button>
+                        <button type="submit"
+                                [routerLink]="['/', { outlets: { popup: 'ledger-account/'+ ledgerAccount.id + '/edit'} }]"
+                                replaceUrl="true"
+                                class="btn btn-primary btn-sm">
+                            <span class="fa fa-pencil"></span>
+                            <span class="hidden-md-down" jhiTranslate="entity.action.edit">Edit</span>
+                        </button>
+                        <button type="submit"
+                                [routerLink]="['/', { outlets: { popup: 'ledger-account/'+ ledgerAccount.id + '/delete'} }]"
+                                replaceUrl="true"
+                                class="btn btn-danger btn-sm">
+                            <span class="fa fa-remove"></span>
+                            <span class="hidden-md-down" jhiTranslate="entity.action.delete">Delete</span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

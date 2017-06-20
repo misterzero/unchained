@@ -1,0 +1,22 @@
+{
+    "unchainedApp": {
+        "ledgerAccount" : {
+            "home": {
+                "title": "Ledger Accounts",
+                "createLabel": "Create a new Ledger Account",
+                "createOrEditLabel": "Create or edit a Ledger Account"
+            },
+            "created": "A new Ledger Account is created with identifier {{ param }}",
+            "updated": "A Ledger Account is updated with identifier {{ param }}",
+            "deleted": "A Ledger Account is deleted with identifier {{ param }}",
+            "delete": {
+                "question": "Are you sure you want to delete Ledger Account {{ id }}?"
+            },
+            "detail": {
+                "title": "Ledger Account"
+            },
+            "name": "Name",
+            "value": "Value"
+        }
+    }
+}

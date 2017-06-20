@@ -1,0 +1,362 @@
+package com.ippon.unchained.config;
+
+import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import java.io.File;
+import java.net.MalformedURLException;
+import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import javax.annotation.PostConstruct;
+
+import org.hyperledger.fabric.sdk.BlockEvent;
+import org.hyperledger.fabric.sdk.Chain;
+import org.hyperledger.fabric.sdk.ChainCodeID;
+import org.hyperledger.fabric.sdk.ChaincodeEndorsementPolicy;
+import org.hyperledger.fabric.sdk.HFClient;
+import org.hyperledger.fabric.sdk.InstallProposalRequest;
+import org.hyperledger.fabric.sdk.InstantiateProposalRequest;
+import org.hyperledger.fabric.sdk.Orderer;
+import org.hyperledger.fabric.sdk.Peer;
+import org.hyperledger.fabric.sdk.ProposalResponse;
+import org.hyperledger.fabric.sdk.exception.TransactionEventException;
+import org.hyperledger.fabric.sdk.security.CryptoSuite;
+import org.hyperledger.fabric_ca.sdk.HFCAClient;
+import org.hyperledger.fabric_ca.sdk.RegistrationRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+
+import com.ippon.unchained.hyperledger.SampleOrg;
+import com.ippon.unchained.hyperledger.SampleStore;
+import com.ippon.unchained.hyperledger.SampleUser;
+import com.ippon.unchained.hyperledger.TestConfig;
+import com.ippon.unchained.hyperledger.TestConfigHelper;
+import com.ippon.unchained.hyperledger.Util;
+
+@Configuration
+public class HyperledgerSetup {
+	private final Logger log = LoggerFactory.getLogger(HyperledgerSetup.class);
+
+	private static final TestConfig testConfig = TestConfig.getConfig();
+	private static final String TEST_ADMIN_NAME = "admin";
+	private static final String TESTUSER_1_NAME = "user1";
+	private static final String TEST_FIXTURES_PATH = "src/main/resources";
+
+	private final int gossipWaitTime = testConfig.getGossipWaitTime();
+
+	private static final String CHAIN_CODE_NAME = "example_cc_go";
+	private static final String CHAIN_CODE_PATH = "github.com/example_cc";
+	private static final String CHAIN_CODE_VERSION = "1";
+
+	private static final String FOO_CHAIN_NAME = "foo";
+	private static final String BAR_CHAIN_NAME = "bar";
+	
+	@Autowired
+	private HFClient client;
+	
+	@Autowired
+	private Chain chain;
+	
+	@Autowired
+	private SampleOrg sampleOrg;
+
+	String testTxID = null; // save the CC invoke TxID and use in queries
+
+	private final TestConfigHelper configHelper = new TestConfigHelper();
+
+	@Autowired
+	private Collection<SampleOrg> testSampleOrgs;
+
+	@PostConstruct
+	public void setupUsers() {
+		try {
+
+			// setup orgs
+
+			////////////////////////////
+			// Setup client
+
+			// Create instance of client.
+		//	HFClient client = getClient();
+
+			// client.setMemberServices(peerOrg1FabricCA);
+
+			////////////////////////////
+			// Set up USERS
+
+			// Persistence is not part of SDK. Sample file store is for
+			// demonstration purposes only!
+			// MUST be replaced with more robust application implementation
+			// (Database, LDAP)
+			File sampleStoreFile = new File(System.getProperty("java.io.tmpdir") + "/HFCSampletest.properties");
+			if (sampleStoreFile.exists()) { // For testing start fresh
+				sampleStoreFile.delete();
+			}
+
+			final SampleStore sampleStore = new SampleStore(sampleStoreFile);
+			// sampleStoreFile.deleteOnExit();
+
+			// SampleUser can be any implementation that implements
+			// org.hyperledger.fabric.sdk.User Interface
+
+			////////////////////////////
+			// get users for all orgs
+
+			for (SampleOrg sampleOrg : testSampleOrgs) {
+
+				HFCAClient ca = sampleOrg.getCAClient();
+				final String orgName = sampleOrg.getName();
+				final String mspid = sampleOrg.getMSPID();
+				if (ca != null) {
+					ca.setCryptoSuite(CryptoSuite.Factory.getCryptoSuite());
+				} else {
+					//TODO fix code smell
+					sampleOrg.setCAClient(
+							HFCAClient.createNewInstance(sampleOrg.getCALocation(), sampleOrg.getCAProperties()));
+					ca = sampleOrg.getCAClient();
+					log.error("CA WAS NULL");
+					ca.setCryptoSuite(CryptoSuite.Factory.getCryptoSuite());
+					// System.exit(0);
+				}
+				SampleUser admin = sampleStore.getMember(TEST_ADMIN_NAME, orgName);
+				if (!admin.isEnrolled()) { // Preregistered admin only needs to
+											// be enrolled with Fabric caClient.
+					admin.setEnrollment(ca.enroll(admin.getName(), "adminpw"));
+					admin.setMPSID(mspid);
+				}
+
+				sampleOrg.setAdmin(admin); // The admin of this org --
+
+				SampleUser user = sampleStore.getMember(TESTUSER_1_NAME, sampleOrg.getName());
+				if (!user.isRegistered()) { // users need to be registered AND
+											// enrolled
+					RegistrationRequest rr = new RegistrationRequest(user.getName(), "org1.department1");
+					user.setEnrollmentSecret(ca.register(rr, admin));
+				}
+				if (!user.isEnrolled()) {
+					user.setEnrollment(ca.enroll(user.getName(), user.getEnrollmentSecret()));
+					user.setMPSID(mspid);
+				}
+				sampleOrg.addUser(user); // Remember user belongs to this Org
+
+				final String sampleOrgName = sampleOrg.getName();
+				final String sampleOrgDomainName = sampleOrg.getDomainName();
+
+				SampleUser peerOrgAdmin = sampleStore.getMember(sampleOrgName + "Admin", sampleOrgName,
+						sampleOrg.getMSPID(),
+						findFile_sk(Paths.get(testConfig.getTestChannlePath(), "crypto-config/peerOrganizations/",
+								sampleOrgDomainName, format("/users/Admin@%s/msp/keystore", sampleOrgDomainName))
+								.toFile()),
+						Paths.get(testConfig.getTestChannlePath(), "crypto-config/peerOrganizations/",
+								sampleOrgDomainName, format("/users/Admin@%s/msp/signcerts/Admin@%s-cert.pem",
+										sampleOrgDomainName, sampleOrgDomainName))
+								.toFile());
+
+				sampleOrg.setPeerAdmin(peerOrgAdmin); // A special user that can
+														// crate channels, join
+														// peers and install
+														// chain code
+				// and jump tall blockchains in a single leap!
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+
+			log.error(e.getMessage());
+		}
+
+	}
+
+	@PostConstruct
+	public void installChaincode() {
+
+		try {
+
+			boolean installChainCode = true;
+			// SampleOrg sampleOrg = getTestSampleOrgs();
+
+			int delta = 100;
+			final String chainName = chain.getName();
+			Util.out("Running Chain %s", chainName);
+			chain.setTransactionWaitTime(testConfig.getTransactionWaitTime());
+			chain.setDeployWaitTime(testConfig.getDeployWaitTime());
+
+			Collection<Peer> channelPeers = chain.getPeers();
+			Collection<Orderer> orderers = chain.getOrderers();
+			final ChainCodeID chainCodeID;
+			Collection<ProposalResponse> responses;
+			Collection<ProposalResponse> successful = new LinkedList<>();
+			Collection<ProposalResponse> failed = new LinkedList<>();
+
+			chainCodeID = ChainCodeID.newBuilder().setName(CHAIN_CODE_NAME).setVersion(CHAIN_CODE_VERSION)
+					.setPath(CHAIN_CODE_PATH).build();
+
+			if (installChainCode) {
+				////////////////////////////
+				// Install Proposal Request
+				//
+
+				client.setUserContext(sampleOrg.getPeerAdmin());
+
+				Util.out("Creating install proposal");
+
+				InstallProposalRequest installProposalRequest = client.newInstallProposalRequest();
+				installProposalRequest.setChaincodeID(chainCodeID);
+
+				if (FOO_CHAIN_NAME.equals(chain.getName())) {
+					// on foo chain install from directory.
+
+					//// For GO language and serving just a single user,
+					//// chaincodeSource is mostly likely the users GOPATH
+					installProposalRequest.setChaincodeSourceLocation(new File(TEST_FIXTURES_PATH + "/gocc/sample1"));
+				} else {
+					// On bar chain install from an input stream.
+
+					installProposalRequest.setChainCodeInputStream(Util.generateTarGzInputStream(
+							(Paths.get(TEST_FIXTURES_PATH, "/gocc/sample1", "src", CHAIN_CODE_PATH).toFile()),
+							Paths.get("src", CHAIN_CODE_PATH).toString()));
+
+				}
+
+				installProposalRequest.setChaincodeVersion(CHAIN_CODE_VERSION);
+
+				Util.out("Sending install proposal");
+
+				////////////////////////////
+				// only a client from the same org as the peer can issue an
+				//////////////////////////// install request
+				int numInstallProposal = 0;
+				// Set<String> orgs = orgPeers.keySet();
+				// for (SampleOrg org : testSampleOrgs) {
+
+				Set<Peer> peersFromOrg = sampleOrg.getPeers();
+				numInstallProposal = numInstallProposal + peersFromOrg.size();
+				responses = client.sendInstallProposal(installProposalRequest, peersFromOrg);
+
+				for (ProposalResponse response : responses) {
+					if (response.getStatus() == ProposalResponse.Status.SUCCESS) {
+						Util.out("Successful install proposal response Txid: %s from peer %s",
+								response.getTransactionID(), response.getPeer().getName());
+						successful.add(response);
+					} else {
+						failed.add(response);
+					}
+				}
+				// }
+				Util.out("Received %d install proposal responses. Successful+verified: %d . failed: %d",
+						numInstallProposal, successful.size(), failed.size());
+
+				if (failed.size() > 0) {
+					ProposalResponse first = failed.iterator().next();
+					log.error("Not enough endorsers for install :" + successful.size() + ".  " + first.getMessage());
+				}
+			}
+
+			///////////////
+			//// Instantiate chain code.
+			InstantiateProposalRequest instantiateProposalRequest = client.newInstantiationProposalRequest();
+			instantiateProposalRequest.setProposalWaitTime(60000);
+			instantiateProposalRequest.setChaincodeID(chainCodeID);
+			instantiateProposalRequest.setFcn("init");
+			instantiateProposalRequest.setArgs(new String[] { "a", "500", "b", "" + (200 + delta) });
+			Map<String, byte[]> tm = new HashMap<>();
+			tm.put("HyperLedgerFabric", "InstantiateProposalRequest:JavaSDK".getBytes(UTF_8));
+			tm.put("method", "InstantiateProposalRequest".getBytes(UTF_8));
+			instantiateProposalRequest.setTransientMap(tm);
+
+			/*
+			 * policy OR(Org1MSP.member, Org2MSP.member) meaning 1 signature
+			 * from someone in either Org1 or Org2 See README.md Chaincode
+			 * endorsement policies section for more details.
+			 */
+			ChaincodeEndorsementPolicy chaincodeEndorsementPolicy = new ChaincodeEndorsementPolicy();
+			chaincodeEndorsementPolicy.fromYamlFile(new File(TEST_FIXTURES_PATH + "/chaincodeendorsementpolicy.yaml"));
+			instantiateProposalRequest.setChaincodeEndorsementPolicy(chaincodeEndorsementPolicy);
+
+			Util.out(
+					"Sending instantiateProposalRequest to all peers with arguments: a and b set to 100 and %s respectively",
+					"" + (200 + delta));
+			successful.clear();
+			failed.clear();
+
+			responses = chain.sendInstantiationProposal(instantiateProposalRequest, chain.getPeers());
+			for (ProposalResponse response : responses) {
+				if (response.isVerified() && response.getStatus() == ProposalResponse.Status.SUCCESS) {
+					successful.add(response);
+					Util.out("Succesful instantiate proposal response Txid: %s from peer %s",
+							response.getTransactionID(), response.getPeer().getName());
+				} else {
+					failed.add(response);
+				}
+			}
+			Util.out("Received %d instantiate proposal responses. Successful+verified: %d . failed: %d",
+					responses.size(), successful.size(), failed.size());
+			if (failed.size() > 0) {
+				ProposalResponse first = failed.iterator().next();
+				log.error("Not enough endorsers for instantiate :" + successful.size() + "endorser failed with "
+						+ first.getMessage() + ". Was verified:" + first.isVerified());
+			}
+
+			///////////////
+			/// Send instantiate transaction to orderer
+			Util.out("Sending instantiateTransaction to orderer with a and b set to 100 and %s respectively",
+					"" + (200 + delta));
+			chain.sendTransaction(successful, orderers).thenApply(transactionEvent -> {
+
+				Util.waitOnFabric(0);
+
+				log.info("transaction valid = " + transactionEvent.isValid()); // must
+																				// be
+																				// valid
+																				// to
+																				// be
+																				// here.
+				Util.out("Finished instantiate transaction with transaction id %s",
+						transactionEvent.getTransactionID());
+				return null;
+			}).exceptionally(e -> {
+				if (e instanceof TransactionEventException) {
+					BlockEvent.TransactionEvent te = ((TransactionEventException) e).getTransactionEvent();
+					if (te != null) {
+						log.error(format("Transaction with txid %s failed. %s", te.getTransactionID(), e.getMessage()));
+					}
+				}
+				log.error(format("Test failed with %s exception %s", e.getClass().getName(), e.getMessage()));
+
+				return null;
+			}).get(testConfig.getTransactionWaitTime(), TimeUnit.SECONDS);
+		} catch (Exception e) {
+			Util.out("Caught an exception running chain %s", chain.getName());
+			e.printStackTrace();
+			log.error("Test failed with error : " + e.getMessage());
+		}
+	}
+
+	File findFile_sk(File directory) {
+
+		File[] matches = directory.listFiles((dir, name) -> name.endsWith("_sk"));
+
+		if (null == matches) {
+			throw new RuntimeException(
+					format("Matches returned null does %s directory exist?", directory.getAbsoluteFile().getName()));
+		}
+
+		if (matches.length != 1) {
+			throw new RuntimeException(format("Expected in %s only 1 sk file but found %d",
+					directory.getAbsoluteFile().getName(), matches.length));
+		}
+
+		return matches[0];
+
+	}
+
+	
+
+}

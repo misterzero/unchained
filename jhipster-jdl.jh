@@ -1,0 +1,8 @@
+/**
+ * Task entity.
+ * @author The JHipster team.
+ */
+entity LedgerAccount {
+	name String,
+	value Integer
+}
