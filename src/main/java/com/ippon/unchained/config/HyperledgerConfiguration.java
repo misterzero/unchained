@@ -100,7 +100,7 @@ public class HyperledgerConfiguration {
 			for (SampleOrg sampleOrg : testSampleOrgsTemp) {
 				sampleOrg.setCAClient(
 						HFCAClient.createNewInstance(sampleOrg.getCALocation(), sampleOrg.getCAProperties()));
-				
+
 				HFCAClient ca = sampleOrg.getCAClient();
 				final String orgName = sampleOrg.getName();
 				final String mspid = sampleOrg.getMSPID();
@@ -118,8 +118,12 @@ public class HyperledgerConfiguration {
 				SampleUser admin = sampleStore.getMember(TEST_ADMIN_NAME, orgName);
 				if (!admin.isEnrolled()) { // Preregistered admin only needs to
 											// be enrolled with Fabric caClient.
-					admin.setEnrollment(ca.enroll(admin.getName(), "adminpw"));
-					admin.setMPSID(mspid);
+                    try {
+                        admin.setEnrollment(ca.enroll(admin.getName(), "adminpw"));
+                        admin.setMPSID(mspid);
+                    } catch (Exception e) {
+                        log.error("Enrolling an Admin threw an error. "+e.getMessage());
+                    }
 				}
 
 				sampleOrg.setAdmin(admin); // The admin of this org --
@@ -127,12 +131,20 @@ public class HyperledgerConfiguration {
 				SampleUser user = sampleStore.getMember(TESTUSER_1_NAME, sampleOrg.getName());
 				if (!user.isRegistered()) { // users need to be registered AND
 											// enrolled
-					RegistrationRequest rr = new RegistrationRequest(user.getName(), "org1.department1");
-					user.setEnrollmentSecret(ca.register(rr, admin));
+                    try {
+                        RegistrationRequest rr = new RegistrationRequest(user.getName(), "org1.department1");
+                        user.setEnrollmentSecret(ca.register(rr, admin));
+                    } catch (Exception e) {
+                        log.error("Registering a user threw an error. "+e.getMessage());
+                    }
 				}
 				if (!user.isEnrolled()) {
-					user.setEnrollment(ca.enroll(user.getName(), user.getEnrollmentSecret()));
-					user.setMPSID(mspid);
+				    try {
+                        user.setEnrollment(ca.enroll(user.getName(), user.getEnrollmentSecret()));
+                        user.setMPSID(mspid);
+                    } catch (Exception e) {
+				        log.error("Enrolling an user threw an error. "+e.getMessage());
+                    }
 				}
 				sampleOrg.addUser(user); // Remember user belongs to this Org
 
@@ -163,7 +175,7 @@ public class HyperledgerConfiguration {
 		}
 	}
 
-	
+
 
 	File findFile_sk(File directory) {
 
