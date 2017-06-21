@@ -13,6 +13,8 @@
  */
 package com.ippon.unchained.hyperledger;
 
+import java.util.Collection;
+
 import org.hyperledger.fabric.sdk.helper.Config;
 
 /**
@@ -62,6 +64,15 @@ public class TestConfigHelper {
                 }
             }
         }
+    }
+    
+    public static SampleOrg getSampleOrgByName(String name, Collection<SampleOrg> orgs) {
+    	for (SampleOrg sampleOrg : orgs) {
+    		if (sampleOrg.getName().equals(name)) {
+    			return sampleOrg;
+    		}
+    	}
+    	return null;
     }
 
 }

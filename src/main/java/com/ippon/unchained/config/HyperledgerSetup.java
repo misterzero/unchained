@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -46,8 +47,7 @@ public class HyperledgerSetup {
 	private final Logger log = LoggerFactory.getLogger(HyperledgerSetup.class);
 
 	private static final TestConfig testConfig = TestConfig.getConfig();
-	private static final String TEST_ADMIN_NAME = "admin";
-	private static final String TESTUSER_1_NAME = "user1";
+
 	private static final String TEST_FIXTURES_PATH = "src/main/resources";
 
 	private final int gossipWaitTime = testConfig.getGossipWaitTime();
@@ -64,9 +64,6 @@ public class HyperledgerSetup {
 	
 	@Autowired
 	private Chain chain;
-	
-	@Autowired
-	private SampleOrg sampleOrg;
 
 	String testTxID = null; // save the CC invoke TxID and use in queries
 
@@ -96,12 +93,7 @@ public class HyperledgerSetup {
 			// demonstration purposes only!
 			// MUST be replaced with more robust application implementation
 			// (Database, LDAP)
-			File sampleStoreFile = new File(System.getProperty("java.io.tmpdir") + "/HFCSampletest.properties");
-			if (sampleStoreFile.exists()) { // For testing start fresh
-				sampleStoreFile.delete();
-			}
 
-			final SampleStore sampleStore = new SampleStore(sampleStoreFile);
 			// sampleStoreFile.deleteOnExit();
 
 			// SampleUser can be any implementation that implements
@@ -112,58 +104,7 @@ public class HyperledgerSetup {
 
 			for (SampleOrg sampleOrg : testSampleOrgs) {
 
-				HFCAClient ca = sampleOrg.getCAClient();
-				final String orgName = sampleOrg.getName();
-				final String mspid = sampleOrg.getMSPID();
-				if (ca != null) {
-					ca.setCryptoSuite(CryptoSuite.Factory.getCryptoSuite());
-				} else {
-					//TODO fix code smell
-					sampleOrg.setCAClient(
-							HFCAClient.createNewInstance(sampleOrg.getCALocation(), sampleOrg.getCAProperties()));
-					ca = sampleOrg.getCAClient();
-					log.error("CA WAS NULL");
-					ca.setCryptoSuite(CryptoSuite.Factory.getCryptoSuite());
-					// System.exit(0);
-				}
-				SampleUser admin = sampleStore.getMember(TEST_ADMIN_NAME, orgName);
-				if (!admin.isEnrolled()) { // Preregistered admin only needs to
-											// be enrolled with Fabric caClient.
-					admin.setEnrollment(ca.enroll(admin.getName(), "adminpw"));
-					admin.setMPSID(mspid);
-				}
-
-				sampleOrg.setAdmin(admin); // The admin of this org --
-
-				SampleUser user = sampleStore.getMember(TESTUSER_1_NAME, sampleOrg.getName());
-				if (!user.isRegistered()) { // users need to be registered AND
-											// enrolled
-					RegistrationRequest rr = new RegistrationRequest(user.getName(), "org1.department1");
-					user.setEnrollmentSecret(ca.register(rr, admin));
-				}
-				if (!user.isEnrolled()) {
-					user.setEnrollment(ca.enroll(user.getName(), user.getEnrollmentSecret()));
-					user.setMPSID(mspid);
-				}
-				sampleOrg.addUser(user); // Remember user belongs to this Org
-
-				final String sampleOrgName = sampleOrg.getName();
-				final String sampleOrgDomainName = sampleOrg.getDomainName();
-
-				SampleUser peerOrgAdmin = sampleStore.getMember(sampleOrgName + "Admin", sampleOrgName,
-						sampleOrg.getMSPID(),
-						findFile_sk(Paths.get(testConfig.getTestChannlePath(), "crypto-config/peerOrganizations/",
-								sampleOrgDomainName, format("/users/Admin@%s/msp/keystore", sampleOrgDomainName))
-								.toFile()),
-						Paths.get(testConfig.getTestChannlePath(), "crypto-config/peerOrganizations/",
-								sampleOrgDomainName, format("/users/Admin@%s/msp/signcerts/Admin@%s-cert.pem",
-										sampleOrgDomainName, sampleOrgDomainName))
-								.toFile());
-
-				sampleOrg.setPeerAdmin(peerOrgAdmin); // A special user that can
-														// crate channels, join
-														// peers and install
-														// chain code
+				
 				// and jump tall blockchains in a single leap!
 			}
 		} catch (Exception e) {
@@ -203,7 +144,7 @@ public class HyperledgerSetup {
 				// Install Proposal Request
 				//
 
-				client.setUserContext(sampleOrg.getPeerAdmin());
+				client.setUserContext(TestConfigHelper.getSampleOrgByName("peerOrg1", testSampleOrgs).getPeerAdmin());
 
 				Util.out("Creating install proposal");
 
@@ -236,7 +177,7 @@ public class HyperledgerSetup {
 				// Set<String> orgs = orgPeers.keySet();
 				// for (SampleOrg org : testSampleOrgs) {
 
-				Set<Peer> peersFromOrg = sampleOrg.getPeers();
+				Set<Peer> peersFromOrg = TestConfigHelper.getSampleOrgByName("peerOrg1", testSampleOrgs).getPeers();
 				numInstallProposal = numInstallProposal + peersFromOrg.size();
 				responses = client.sendInstallProposal(installProposalRequest, peersFromOrg);
 
@@ -339,23 +280,7 @@ public class HyperledgerSetup {
 		}
 	}
 
-	File findFile_sk(File directory) {
 
-		File[] matches = directory.listFiles((dir, name) -> name.endsWith("_sk"));
-
-		if (null == matches) {
-			throw new RuntimeException(
-					format("Matches returned null does %s directory exist?", directory.getAbsoluteFile().getName()));
-		}
-
-		if (matches.length != 1) {
-			throw new RuntimeException(format("Expected in %s only 1 sk file but found %d",
-					directory.getAbsoluteFile().getName(), matches.length));
-		}
-
-		return matches[0];
-
-	}
 
 	
 
