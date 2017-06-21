@@ -72,7 +72,6 @@ public class HyperledgerSetup {
 	@Autowired
 	private Collection<SampleOrg> testSampleOrgs;
 
-	@PostConstruct
 	public void setupUsers() {
 		try {
 
@@ -176,8 +175,9 @@ public class HyperledgerSetup {
 				int numInstallProposal = 0;
 				// Set<String> orgs = orgPeers.keySet();
 				// for (SampleOrg org : testSampleOrgs) {
+				SampleOrg testOrg = TestConfigHelper.getSampleOrgByName("peerOrg1", testSampleOrgs);
 
-				Set<Peer> peersFromOrg = TestConfigHelper.getSampleOrgByName("peerOrg1", testSampleOrgs).getPeers();
+				Set<Peer> peersFromOrg = testOrg.getPeers();
 				numInstallProposal = numInstallProposal + peersFromOrg.size();
 				responses = client.sendInstallProposal(installProposalRequest, peersFromOrg);
 
