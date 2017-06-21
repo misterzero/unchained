@@ -4,12 +4,10 @@ import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.io.File;
-import java.net.MalformedURLException;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -27,17 +25,13 @@ import org.hyperledger.fabric.sdk.Orderer;
 import org.hyperledger.fabric.sdk.Peer;
 import org.hyperledger.fabric.sdk.ProposalResponse;
 import org.hyperledger.fabric.sdk.exception.TransactionEventException;
-import org.hyperledger.fabric.sdk.security.CryptoSuite;
-import org.hyperledger.fabric_ca.sdk.HFCAClient;
-import org.hyperledger.fabric_ca.sdk.RegistrationRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.ippon.unchained.hyperledger.SampleOrg;
-import com.ippon.unchained.hyperledger.SampleStore;
-import com.ippon.unchained.hyperledger.SampleUser;
 import com.ippon.unchained.hyperledger.TestConfig;
 import com.ippon.unchained.hyperledger.TestConfigHelper;
 import com.ippon.unchained.hyperledger.Util;
@@ -58,6 +52,8 @@ public class HyperledgerSetup {
 
 	private static final String FOO_CHAIN_NAME = "foo";
 	private static final String BAR_CHAIN_NAME = "bar";
+	
+	private ChainCodeID chainCodeID; 
 	
 	@Autowired
 	private HFClient client;
@@ -130,14 +126,14 @@ public class HyperledgerSetup {
 
 			Collection<Peer> channelPeers = chain.getPeers();
 			Collection<Orderer> orderers = chain.getOrderers();
-			final ChainCodeID chainCodeID;
+			final ChainCodeID ccId;
 			Collection<ProposalResponse> responses;
 			Collection<ProposalResponse> successful = new LinkedList<>();
 			Collection<ProposalResponse> failed = new LinkedList<>();
 
-			chainCodeID = ChainCodeID.newBuilder().setName(CHAIN_CODE_NAME).setVersion(CHAIN_CODE_VERSION)
+			ccId = ChainCodeID.newBuilder().setName(CHAIN_CODE_NAME).setVersion(CHAIN_CODE_VERSION)
 					.setPath(CHAIN_CODE_PATH).build();
-
+			this.setChainCodeId(ccId);
 			if (installChainCode) {
 				////////////////////////////
 				// Install Proposal Request
@@ -278,6 +274,15 @@ public class HyperledgerSetup {
 			e.printStackTrace();
 			log.error("Test failed with error : " + e.getMessage());
 		}
+	}
+
+	@Bean
+	public ChainCodeID getChainCodeID() {
+		return this.chainCodeID;
+	}
+	private void setChainCodeId(ChainCodeID ccId) {
+		this.chainCodeID = ccId;
+		
 	}
 
 

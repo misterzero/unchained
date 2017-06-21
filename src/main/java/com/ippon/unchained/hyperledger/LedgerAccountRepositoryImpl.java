@@ -32,8 +32,6 @@ public class LedgerAccountRepositoryImpl implements LedgerAccountRepository {
     @Autowired
     ChainCodeID chainCodeID;
 
-    @Autowired
-    BlockEvent.TransactionEvent transactionEvent;
 
     /**
      * Call the hyperledger query function
@@ -48,16 +46,14 @@ public class LedgerAccountRepositoryImpl implements LedgerAccountRepository {
 
 
 //         assertTrue(transactionEvent.isValid()); // must be valid to be here.
-            Util.out("Finished transaction with transaction id %s", transactionEvent.getTransactionID());
+      //      Util.out("Finished transaction with transaction id %s", transactionEvent.getTransactionID());
 //         testTxID = transactionEvent.getTransactionID(); // used in the channel queries later
 
             ////////////////////////////
             // Send Query Proposal to all peers
             //
-//            HFClient client;
-//            final ChainCodeID chainCodeID;
-//            Chain chain;
 
+       //     chain.sendTransaction(successful, orderers).thenApply(transactionEvent -> {
             Util.out("Now query chain code for the value of b.");
             QueryByChaincodeRequest queryByChaincodeRequest = client.newQueryProposalRequest();
             queryByChaincodeRequest.setArgs(new String[] {"findAll"});
@@ -84,12 +80,13 @@ public class LedgerAccountRepositoryImpl implements LedgerAccountRepository {
             }
 
             return null;
+           // });
         } catch (Exception e) {
             Util.out("Caught exception while running query");
             e.printStackTrace();
             LOGGER.error("failed during chaincode query with error : " + e.getMessage());
         }
-
+        
         return null;
     }
 
@@ -294,7 +291,7 @@ public class LedgerAccountRepositoryImpl implements LedgerAccountRepository {
             Util.waitOnFabric(0);
 
 //         assertTrue(transactionEvent.isValid()); // must be valid to be here.
-            Util.out("Finished transaction with transaction id %s", transactionEvent.getTransactionID());
+  //          Util.out("Finished transaction with transaction id %s", transactionEvent.getTransactionID());
 //         testTxID = transactionEvent.getTransactionID(); // used in the channel queries later
 
             ////////////////////////////

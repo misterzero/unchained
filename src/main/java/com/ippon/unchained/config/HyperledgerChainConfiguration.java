@@ -33,6 +33,7 @@ public class HyperledgerChainConfiguration {
 
 	private static final String FOO_CHAIN_NAME = "foo";
 
+	
 	@Autowired
 	private HFClient client;
 	@Autowired
