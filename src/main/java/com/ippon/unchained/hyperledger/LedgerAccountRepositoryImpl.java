@@ -56,7 +56,7 @@ public class LedgerAccountRepositoryImpl implements LedgerAccountRepository {
        //     chain.sendTransaction(successful, orderers).thenApply(transactionEvent -> {
             Util.out("Now query chain code for the value of b.");
             QueryByChaincodeRequest queryByChaincodeRequest = client.newQueryProposalRequest();
-            queryByChaincodeRequest.setArgs(new String[] {"findAll"});
+            queryByChaincodeRequest.setArgs(new String[] {"query","a"});
             queryByChaincodeRequest.setFcn("invoke");
             queryByChaincodeRequest.setChaincodeID(chainCodeID);
 
@@ -92,8 +92,7 @@ public class LedgerAccountRepositoryImpl implements LedgerAccountRepository {
 
     @Override
     public List<LedgerAccount> findAll(){
-        // TODO Auto-generated method stub
-        return null;
+        return findAll("","");
     }
 
     @Override
