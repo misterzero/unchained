@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
@@ -34,14 +35,15 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.hyperledger.fabric.sdk.helper.SDKUtil;
-import org.slf4j.Logger;
+import org.apache.log4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ippon.unchained.config.WebConfigurer;
 
 public class Util {
 
-    private final static Logger log = LoggerFactory.getLogger(Util.class);
+    //    private final static Logger log = LoggerFactory.getLogger(Util.class);
+    private static final Logger LOGGER = Logger.getLogger(LedgerAccountRepositoryImpl.class);
 
     /**
      * Generate a targz inputstream from source folder.
@@ -97,21 +99,28 @@ public class Util {
 
         return new ByteArrayInputStream(bos.toByteArray());
     }
-    
+
+
     public static void waitOnFabric(int additional) {
         // wait a few seconds for the peers to catch up with each other via the gossip network.
         // Another way would be to wait on all the peers event hubs for the event containing the transaction TxID
-//        try {
-//            out("Wait %d milliseconds for peers to sync with each other", gossipWaitTime + additional);
-//            TimeUnit.MILLISECONDS.sleep(gossipWaitTime + additional);
-//        } catch (InterruptedException e) {
-//            LOGGER.error("should not have jumped out of sleep mode. No other threads should be running");
-//        }
+        try {
+            out("Wait %d milliseconds for peers to sync with each other", 5000 + additional);
+            TimeUnit.MILLISECONDS.sleep(5000 + additional);
+        } catch (InterruptedException e) {
+
+            LOGGER.error("should not have jumped out of sleep mode. No other threads should be running");
+        }
     }
-    
+
     public static void out(String format, Object... args) {
 
-        log.info(format, args);
+        System.err.flush();
+        System.out.flush();
+
+        System.out.println(format(format, args));
+        System.err.flush();
+        System.out.flush();
 
     }
 }

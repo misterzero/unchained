@@ -4,28 +4,17 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
-import org.hyperledger.fabric.sdk.Chain;
-import org.hyperledger.fabric.sdk.ChainCodeID;
-import org.hyperledger.fabric.sdk.HFClient;
-import org.hyperledger.fabric.sdk.ProposalResponse;
-import org.hyperledger.fabric.sdk.QueryByChaincodeRequest;
-import org.hyperledger.fabric.sdk.TransactionProposalRequest;
-import org.hyperledger.fabric.sdk.TxReadWriteSetInfo;
+import org.hyperledger.fabric.sdk.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
-
-import com.ippon.unchained.hyperledger.SampleOrg;
-import com.ippon.unchained.hyperledger.TestConfig;
-import com.ippon.unchained.config.HyperledgerConfiguration;
 import com.ippon.unchained.domain.LedgerAccount;
 import com.ippon.unchained.repository.LedgerAccountRepository;
 
@@ -33,24 +22,34 @@ import com.ippon.unchained.repository.LedgerAccountRepository;
 public class LedgerAccountRepositoryImpl implements LedgerAccountRepository {
 
     private static final Logger LOGGER = Logger.getLogger(LedgerAccountRepositoryImpl.class);
-    private static final String TEST_ADMIN_NAME = "admin";
-    private static final String TESTUSER_1_NAME = "user1";
-    private static final TestConfig testConfig = TestConfig.getConfig();
+
+    @Autowired
+    HFClient client;
+
+    @Autowired
+    Chain chain;
+
+    @Autowired
+    ChainCodeID chainCodeID;
+
+    @Autowired
+    BlockEvent.TransactionEvent transactionEvent;
+
+    /**
+     * Call the hyperledger query function
+     */
+//    @Override
+    //TODO come back and adjust for findAll
+    public List<LedgerAccount> findAll(String testFixturePath, String chainName) {
+
+        try {
+
+//		    Util.waitOnFabric(0);
 
 
-	/**
-	 * Call the hyperledger query function
-	 */
-	@Override
-	public List<LedgerAccount> findAll() {
-		
-//		try {
-
-            Util.waitOnFabric(0);
-
-           // assertTrue(transactionEvent.isValid()); // must be valid to be here.
-           // Util.out("Finished transaction with transaction id %s", transactionEvent.getTransactionID());
-           // testTxID = transactionEvent.getTransactionID(); // used in the channel queries later
+//         assertTrue(transactionEvent.isValid()); // must be valid to be here.
+            Util.out("Finished transaction with transaction id %s", transactionEvent.getTransactionID());
+//         testTxID = transactionEvent.getTransactionID(); // used in the channel queries later
 
             ////////////////////////////
             // Send Query Proposal to all peers
@@ -58,58 +57,65 @@ public class LedgerAccountRepositoryImpl implements LedgerAccountRepository {
 //            HFClient client;
 //            final ChainCodeID chainCodeID;
 //            Chain chain;
-//            
-//            Util.out("Now query chain code for the value of b.");
-//            QueryByChaincodeRequest queryByChaincodeRequest = client.newQueryProposalRequest();
-//            queryByChaincodeRequest.setArgs(new String[] {"query", "b"});
-//            queryByChaincodeRequest.setFcn("invoke");
-//            queryByChaincodeRequest.setChaincodeID(chainCodeID);
-//
-//            Map<String, byte[]> tm2 = new HashMap<>();
-//            tm2.put("HyperLedgerFabric", "QueryByChaincodeRequest:JavaSDK".getBytes(UTF_8));
-//            tm2.put("method", "QueryByChaincodeRequest".getBytes(UTF_8));
-//            queryByChaincodeRequest.setTransientMap(tm2);
-//
-//            Collection<ProposalResponse> queryProposals = chain.queryByChaincode(queryByChaincodeRequest, chain.getPeers());
-//            for (ProposalResponse proposalResponse : queryProposals) {
-//                if (!proposalResponse.isVerified() || proposalResponse.getStatus() != ProposalResponse.Status.SUCCESS) {
-//                    LOGGER.error("failed query proposal from peer " + proposalResponse.getPeer().getName() + " status: " + proposalResponse.getStatus() +
-//                            ". Messages: " + proposalResponse.getMessage()
-//                            + ". Was verified : " + proposalResponse.isVerified());
-//                } else {
-//    //               String payload = proposalResponse.getProposalResponse().getResponse().getPayload().toStringUtf8();
-//   //                 Util.out("Query payload of b from peer %s returned %s", proposalResponse.getPeer().getName(), payload);
-//   //                 LOGGER.info("Payload :"+ payload);
-//                }
-//            }
-//
-//            return null;
-//        } catch (Exception e) {
-//            Util.out("Caught exception while running query");
-//            e.printStackTrace();
-//            LOGGER.error("failed during chaincode query with error : " + e.getMessage());
-//        }
+
+            Util.out("Now query chain code for the value of b.");
+            QueryByChaincodeRequest queryByChaincodeRequest = client.newQueryProposalRequest();
+            queryByChaincodeRequest.setArgs(new String[] {"findAll"});
+            queryByChaincodeRequest.setFcn("invoke");
+            queryByChaincodeRequest.setChaincodeID(chainCodeID);
+
+
+            Map<String, byte[]> tm2 = new HashMap<>();
+            tm2.put("HyperLedgerFabric", "QueryByChaincodeRequest:JavaSDK".getBytes(UTF_8));
+            tm2.put("method", "QueryByChaincodeRequest".getBytes(UTF_8));
+            queryByChaincodeRequest.setTransientMap(tm2);
+
+            Collection<ProposalResponse> queryProposals = chain.queryByChaincode(queryByChaincodeRequest, chain.getPeers());
+            for (ProposalResponse proposalResponse : queryProposals) {
+                if (!proposalResponse.isVerified() || proposalResponse.getStatus() != ProposalResponse.Status.SUCCESS) {
+                    LOGGER.error("failed query proposal from peer " + proposalResponse.getPeer().getName() + " status: " + proposalResponse.getStatus() +
+                        ". Messages: " + proposalResponse.getMessage()
+                        + ". Was verified : " + proposalResponse.isVerified());
+                } else {
+                    String payload = proposalResponse.getProposalResponse().getResponse().getPayload().toStringUtf8();
+                    Util.out("Query payload of b from peer %s returned %s", proposalResponse.getPeer().getName(), payload);
+                    LOGGER.info("Payload :"+ payload);
+                }
+            }
+
+            return null;
+        } catch (Exception e) {
+            Util.out("Caught exception while running query");
+            e.printStackTrace();
+            LOGGER.error("failed during chaincode query with error : " + e.getMessage());
+        }
 
         return null;
-	}
+    }
 
-	@Override
-	public List<LedgerAccount> findAll(Sort sort) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public List<LedgerAccount> findAll(){
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public List<LedgerAccount> findAll(Iterable<Long> ids) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public List<LedgerAccount> findAll(Sort sort) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	/**
-	 * Call the hyperledger invoke function
-	 */
-	@Override
-	public <S extends LedgerAccount> List<S> save(Iterable<S> entities) {
+    @Override
+    public List<LedgerAccount> findAll(Iterable<Long> ids) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /**
+     * Call the hyperledger invoke function
+     */
+    @Override
+    public <S extends LedgerAccount> List<S> save(Iterable<S> entities) {
 //		try {
 //			SampleOrg sampleOrg;
 //			HFClient client;
@@ -167,11 +173,11 @@ public class LedgerAccountRepositoryImpl implements LedgerAccountRepository {
 //
 //            TxReadWriteSetInfo readWriteSetInfo = resp.getChainCodeActionResponseReadWriteSetInfo();
 //            //See blockwaler below how to transverse this
-//            
+//
 //            LOGGER.info("Reset count = " + readWriteSetInfo.getNsRwsetCount());
 //
 //            ChainCodeID cid = resp.getChainCodeID();
-//           
+//
 //            LOGGER.info("Chaincode path " + cid.getPath());
 //            LOGGER.info("Chaincode name " + cid.getName());
 //            LOGGER.info("Chaincode version " + cid.getVersion());
@@ -189,126 +195,177 @@ public class LedgerAccountRepositoryImpl implements LedgerAccountRepository {
 //        }
 
         return null;
-	}
+    }
 
-	@Override
-	public void flush() {
-		// TODO Auto-generated method stub
+    @Override
+    public void flush() {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	public <S extends LedgerAccount> S saveAndFlush(S entity) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public <S extends LedgerAccount> S saveAndFlush(S entity) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public void deleteInBatch(Iterable<LedgerAccount> entities) {
-		// TODO Auto-generated method stub
+    @Override
+    public void deleteInBatch(Iterable<LedgerAccount> entities) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	public void deleteAllInBatch() {
-		// TODO Auto-generated method stub
+    @Override
+    public void deleteAllInBatch() {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	public LedgerAccount getOne(Long id) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public LedgerAccount getOne(Long id) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public <S extends LedgerAccount> List<S> findAll(Example<S> example) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public <S extends LedgerAccount> List<S> findAll(Example<S> example) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public <S extends LedgerAccount> List<S> findAll(Example<S> example, Sort sort) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public <S extends LedgerAccount> List<S> findAll(Example<S> example, Sort sort) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public Page<LedgerAccount> findAll(Pageable arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public Page<LedgerAccount> findAll(Pageable arg0) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public long count() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    @Override
+    public long count() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 
-	@Override
-	public void delete(Long arg0) {
-		// TODO Auto-generated method stub
+    @Override
+    public void delete(Long arg0) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	public void delete(LedgerAccount arg0) {
-		// TODO Auto-generated method stub
+    @Override
+    public void delete(LedgerAccount arg0) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	public void delete(Iterable<? extends LedgerAccount> arg0) {
-		// TODO Auto-generated method stub
+    @Override
+    public void delete(Iterable<? extends LedgerAccount> arg0) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	public void deleteAll() {
-		// TODO Auto-generated method stub
+    @Override
+    public void deleteAll() {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	public boolean exists(Long arg0) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean exists(Long arg0) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	@Override
-	public LedgerAccount findOne(Long arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+//	@Override
+//	public LedgerAccount findOne(Long arg0) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 
-	@Override
-	public <S extends LedgerAccount> S save(S arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public LedgerAccount findOne(Long id) {
+        try {
 
-	@Override
-	public <S extends LedgerAccount> long count(Example<S> arg0) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+            Util.waitOnFabric(0);
 
-	@Override
-	public <S extends LedgerAccount> boolean exists(Example<S> arg0) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+//         assertTrue(transactionEvent.isValid()); // must be valid to be here.
+            Util.out("Finished transaction with transaction id %s", transactionEvent.getTransactionID());
+//         testTxID = transactionEvent.getTransactionID(); // used in the channel queries later
 
-	@Override
-	public <S extends LedgerAccount> Page<S> findAll(Example<S> arg0, Pageable arg1) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+            ////////////////////////////
+            // Send Query Proposal to all peers
+            //
 
-	@Override
-	public <S extends LedgerAccount> S findOne(Example<S> arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+            Util.out("Now query chain code for the value of b.");
+            QueryByChaincodeRequest queryByChaincodeRequest = client.newQueryProposalRequest();
+            queryByChaincodeRequest.setArgs(new String[] {"query", id.toString()});
+            queryByChaincodeRequest.setFcn("invoke");
+            queryByChaincodeRequest.setChaincodeID(chainCodeID);
 
+            Map<String, byte[]> tm2 = new HashMap<>();
+            tm2.put("HyperLedgerFabric", "QueryByChaincodeRequest:JavaSDK".getBytes(UTF_8));
+            tm2.put("method", "QueryByChaincodeRequest".getBytes(UTF_8));
+            queryByChaincodeRequest.setTransientMap(tm2);
+
+            Collection<ProposalResponse> queryProposals = chain.queryByChaincode(queryByChaincodeRequest, chain.getPeers());
+            for (ProposalResponse proposalResponse : queryProposals) {
+                if (!proposalResponse.isVerified() || proposalResponse.getStatus() != ProposalResponse.Status.SUCCESS) {
+                    LOGGER.error("failed query proposal from peer " + proposalResponse.getPeer().getName() + " status: " + proposalResponse.getStatus() +
+                        ". Messages: " + proposalResponse.getMessage()
+                        + ". Was verified : " + proposalResponse.isVerified());
+                } else {
+                    String payload = proposalResponse.getProposalResponse().getResponse().getPayload().toStringUtf8();
+                    Util.out("Query payload of" + id +"from peer %s returned %s", proposalResponse.getPeer().getName(), payload);
+                    LOGGER.info("Payload :"+ payload);
+                }
+            }
+
+            LedgerAccount ledgerAccount = new LedgerAccount();
+            ledgerAccount.setId(id);
+            ledgerAccount.setName(id.toString());
+
+
+
+        } catch (Exception e) {
+            Util.out("Caught exception while running query");
+            e.printStackTrace();
+            LOGGER.error("failed during chaincode query with error : " + e.getMessage());
+        }
+        return null;
+    }
+
+    @Override
+    public <S extends LedgerAccount> S save(S arg0) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public <S extends LedgerAccount> long count(Example<S> arg0) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public <S extends LedgerAccount> boolean exists(Example<S> arg0) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public <S extends LedgerAccount> Page<S> findAll(Example<S> arg0, Pageable arg1) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public <S extends LedgerAccount> S findOne(Example<S> arg0) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }
