@@ -2,10 +2,7 @@ package com.ippon.unchained.hyperledger;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.log4j.Logger;
 import org.hyperledger.fabric.sdk.*;
@@ -67,7 +64,9 @@ public class LedgerAccountRepositoryImpl implements LedgerAccountRepository {
             queryByChaincodeRequest.setTransientMap(tm2);
 
             Collection<ProposalResponse> queryProposals = chain.queryByChaincode(queryByChaincodeRequest, chain.getPeers());
+            List<LedgerAccount> ret = new ArrayList<>();
             for (ProposalResponse proposalResponse : queryProposals) {
+                LedgerAccount ledgeracc = new LedgerAccount();
                 if (!proposalResponse.isVerified() || proposalResponse.getStatus() != ProposalResponse.Status.SUCCESS) {
                     LOGGER.error("failed query proposal from peer " + proposalResponse.getPeer().getName() + " status: " + proposalResponse.getStatus() +
                         ". Messages: " + proposalResponse.getMessage()
@@ -76,17 +75,22 @@ public class LedgerAccountRepositoryImpl implements LedgerAccountRepository {
                     String payload = proposalResponse.getProposalResponse().getResponse().getPayload().toStringUtf8();
                     Util.out("Query payload of b from peer %s returned %s", proposalResponse.getPeer().getName(), payload);
                     LOGGER.info("Payload :"+ payload);
+                    ledgeracc.setName("Fake Name");
+                    ledgeracc.setId(1L);
+                    ledgeracc.setValue(Integer.parseInt(payload));
+                    ret.add(ledgeracc);
                 }
             }
 
-            return null;
+            return ret;
            // });
         } catch (Exception e) {
             Util.out("Caught exception while running query");
             e.printStackTrace();
             LOGGER.error("failed during chaincode query with error : " + e.getMessage());
         }
-        
+
+
         return null;
     }
 
