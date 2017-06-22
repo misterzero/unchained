@@ -2,7 +2,12 @@ package com.ippon.unchained.hyperledger;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.hyperledger.fabric.sdk.*;
@@ -36,27 +41,48 @@ public class LedgerAccountRepositoryImpl implements LedgerAccountRepository {
 //    @Override
     //TODO come back and adjust for findAll
     public List<LedgerAccount> findAll(String testFixturePath, String chainName) {
-
-        try {
-
-//		    Util.waitOnFabric(0);
-
-
-//         assertTrue(transactionEvent.isValid()); // must be valid to be here.
-      //      Util.out("Finished transaction with transaction id %s", transactionEvent.getTransactionID());
-//         testTxID = transactionEvent.getTransactionID(); // used in the channel queries later
-
-            ////////////////////////////
-            // Send Query Proposal to all peers
-            //
-
-       //     chain.sendTransaction(successful, orderers).thenApply(transactionEvent -> {
-            Util.out("Now query chain code for the value of b.");
+    	int valuea = 0;
+        Long ida = (long) 1;
+    	int valueb = 0;
+        Long idb = (long) 2;
+    	try {
+            Util.out("Now query chain code for the value of a.");
             QueryByChaincodeRequest queryByChaincodeRequest = client.newQueryProposalRequest();
             queryByChaincodeRequest.setArgs(new String[] {"query","a"});
             queryByChaincodeRequest.setFcn("invoke");
             queryByChaincodeRequest.setChaincodeID(chainCodeID);
+            
 
+            Map<String, byte[]> tm2 = new HashMap<>();
+            tm2.put("HyperLedgerFabric", "QueryByChaincodeRequest:JavaSDK".getBytes(UTF_8));
+            tm2.put("method", "QueryByChaincodeRequest".getBytes(UTF_8));
+            queryByChaincodeRequest.setTransientMap(tm2);
+
+            Collection<ProposalResponse> queryProposals = chain.queryByChaincode(queryByChaincodeRequest, chain.getPeers());
+            for (ProposalResponse proposalResponse : queryProposals) {
+                if (!proposalResponse.isVerified() || proposalResponse.getStatus() != ProposalResponse.Status.SUCCESS) {
+                    LOGGER.error("failed query proposal from peer " + proposalResponse.getPeer().getName() + " status: " + proposalResponse.getStatus() +
+                        ". Messages: " + proposalResponse.getMessage()
+                        + ". Was verified : " + proposalResponse.isVerified());
+                } else {
+                    String payload = proposalResponse.getProposalResponse().getResponse().getPayload().toStringUtf8();
+                    Util.out("Query payload of b from peer %s returned %s", proposalResponse.getPeer().getName(), payload);
+                    LOGGER.info("Payload :"+ payload);
+                    valuea = Integer.parseInt(payload);
+                }
+            }
+        } catch (Exception e) {
+            Util.out("Caught exception while running query");
+            e.printStackTrace();
+            LOGGER.error("failed during chaincode query with error : " + e.getMessage());
+        }
+    	try {
+            Util.out("Now query chain code for the value of b.");
+            QueryByChaincodeRequest queryByChaincodeRequest = client.newQueryProposalRequest();
+            queryByChaincodeRequest.setArgs(new String[] {"query","b"});
+            queryByChaincodeRequest.setFcn("invoke");
+            queryByChaincodeRequest.setChaincodeID(chainCodeID);
+            
 
             Map<String, byte[]> tm2 = new HashMap<>();
             tm2.put("HyperLedgerFabric", "QueryByChaincodeRequest:JavaSDK".getBytes(UTF_8));
@@ -75,23 +101,30 @@ public class LedgerAccountRepositoryImpl implements LedgerAccountRepository {
                     String payload = proposalResponse.getProposalResponse().getResponse().getPayload().toStringUtf8();
                     Util.out("Query payload of b from peer %s returned %s", proposalResponse.getPeer().getName(), payload);
                     LOGGER.info("Payload :"+ payload);
-                    ledgeracc.setName("Fake Name");
-                    ledgeracc.setId(1L);
-                    ledgeracc.setValue(Integer.parseInt(payload));
-                    ret.add(ledgeracc);
+
+                    valueb = Integer.parseInt(payload);
                 }
             }
 
-            return ret;
-           // });
         } catch (Exception e) {
             Util.out("Caught exception while running query");
             e.printStackTrace();
             LOGGER.error("failed during chaincode query with error : " + e.getMessage());
         }
-
-
-        return null;
+    	LedgerAccount LedgerAccounta = new LedgerAccount();
+        LedgerAccounta.setId(ida);
+        LedgerAccounta.setName("a");
+        LedgerAccounta.setValue(valuea);
+        LedgerAccount LedgerAccountb = new LedgerAccount();
+        LedgerAccountb.setId(idb);
+        LedgerAccountb.setName("b");
+        LedgerAccountb.setValue(valueb);
+        
+        List<LedgerAccount> l = new ArrayList<LedgerAccount>();
+        
+        l.add(LedgerAccounta);
+        l.add(LedgerAccountb);
+        return l;
     }
 
     @Override
