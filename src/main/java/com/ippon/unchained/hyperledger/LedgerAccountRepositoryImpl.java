@@ -2,12 +2,8 @@ package com.ippon.unchained.hyperledger;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 import org.hyperledger.fabric.sdk.*;
@@ -34,6 +30,8 @@ public class LedgerAccountRepositoryImpl implements LedgerAccountRepository {
     @Autowired
     ChainCodeID chainCodeID;
 
+    @Autowired
+    private Collection<SampleOrg> testSampleOrgs;
 
     /**
      * Call the hyperledger query function
@@ -51,7 +49,7 @@ public class LedgerAccountRepositoryImpl implements LedgerAccountRepository {
             queryByChaincodeRequest.setArgs(new String[] {"query","a"});
             queryByChaincodeRequest.setFcn("invoke");
             queryByChaincodeRequest.setChaincodeID(chainCodeID);
-            
+
 
             Map<String, byte[]> tm2 = new HashMap<>();
             tm2.put("HyperLedgerFabric", "QueryByChaincodeRequest:JavaSDK".getBytes(UTF_8));
@@ -82,7 +80,7 @@ public class LedgerAccountRepositoryImpl implements LedgerAccountRepository {
             queryByChaincodeRequest.setArgs(new String[] {"query","b"});
             queryByChaincodeRequest.setFcn("invoke");
             queryByChaincodeRequest.setChaincodeID(chainCodeID);
-            
+
 
             Map<String, byte[]> tm2 = new HashMap<>();
             tm2.put("HyperLedgerFabric", "QueryByChaincodeRequest:JavaSDK".getBytes(UTF_8));
@@ -119,9 +117,9 @@ public class LedgerAccountRepositoryImpl implements LedgerAccountRepository {
         LedgerAccountb.setId(idb);
         LedgerAccountb.setName("b");
         LedgerAccountb.setValue(valueb);
-        
+
         List<LedgerAccount> l = new ArrayList<LedgerAccount>();
-        
+
         l.add(LedgerAccounta);
         l.add(LedgerAccountb);
         return l;
@@ -149,83 +147,85 @@ public class LedgerAccountRepositoryImpl implements LedgerAccountRepository {
      */
     @Override
     public <S extends LedgerAccount> List<S> save(Iterable<S> entities) {
-//		try {
+		try {
+//		    testConfig = TestConfig.getConfig();
+		    LOGGER.debug("Starting save ledger method");
 //			SampleOrg sampleOrg;
 //			HFClient client;
 //            final ChainCodeID chainCodeID;
 //            Chain chain;
-//            Collection<ProposalResponse> successful = new LinkedList<>();
-//            Collection<ProposalResponse> failed = new LinkedList<>();
-//
-//
-//            client.setUserContext(sampleOrg.getUser(TESTUSER_1_NAME));
-//
-//            ///////////////
-//            /// Send transaction proposal to all peers
-//            TransactionProposalRequest transactionProposalRequest = client.newTransactionProposalRequest();
-//            transactionProposalRequest.setChaincodeID(chainCodeID);
-//            transactionProposalRequest.setFcn("invoke");
-//            transactionProposalRequest.setArgs(new String[] {"move", "a", "b", "100"});
-//
-//            Map<String, byte[]> tm2 = new HashMap<>();
-//            tm2.put("HyperLedgerFabric", "TransactionProposalRequest:JavaSDK".getBytes(UTF_8));
-//            tm2.put("method", "TransactionProposalRequest".getBytes(UTF_8));
-//            tm2.put("result", ":)".getBytes(UTF_8));  /// This should be returned see chaincode.
-//            transactionProposalRequest.setTransientMap(tm2);
-//
-//            Util.out("sending transactionProposal to all peers with arguments: move(a,b,100)");
-//
-//            Collection<ProposalResponse> transactionPropResp = chain.sendTransactionProposal(transactionProposalRequest, chain.getPeers());
-//            for (ProposalResponse response : transactionPropResp) {
-//                if (response.getStatus() == ProposalResponse.Status.SUCCESS) {
-//                    Util.out("Successful transaction proposal response Txid: %s from peer %s", response.getTransactionID(), response.getPeer().getName());
-//                    successful.add(response);
-//                } else {
-//                    failed.add(response);
-//                }
-//            }
-//            Util.out("Received %d transaction proposal responses. Successful+verified: %d . failed: %d",
-//                    transactionPropResp.size(), successful.size(), failed.size());
-//            if (failed.size() > 0) {
-//                ProposalResponse firstTransactionProposalResponse = failed.iterator().next();
-//                LOGGER.error("Not enough endorsers for invoke(move a,b,100):" + failed.size() + " endorser error: " +
-//                        firstTransactionProposalResponse.getMessage() +
-//                        ". Was verified: " + firstTransactionProposalResponse.isVerified());
-//            }
-//            Util.out("Successfully received transaction proposal responses.");
-//
-//            ProposalResponse resp = transactionPropResp.iterator().next();
-//            byte[] x = resp.getChainCodeActionResponsePayload(); // This is the data returned by the chaincode.
-//            String resultAsString = null;
-//            if (x != null) {
-//                resultAsString = new String(x, "UTF-8");
-//            }
-//      //      LOGGER.info(":)", resultAsString);
-//
-//            LOGGER.info("Chaincode result status = " + resp.getChainCodeActionResponseStatus()); //Chaincode's status.
-//
-//            TxReadWriteSetInfo readWriteSetInfo = resp.getChainCodeActionResponseReadWriteSetInfo();
-//            //See blockwaler below how to transverse this
-//
-//            LOGGER.info("Reset count = " + readWriteSetInfo.getNsRwsetCount());
-//
-//            ChainCodeID cid = resp.getChainCodeID();
-//
-//            LOGGER.info("Chaincode path " + cid.getPath());
-//            LOGGER.info("Chaincode name " + cid.getName());
-//            LOGGER.info("Chaincode version " + cid.getVersion());
-//
-//            ////////////////////////////
-//            // Send Transaction Transaction to orderer
-//            Util.out("Sending chain code transaction(move a,b,100) to orderer.");
-//           //  return chain.sendTransaction(successful).get(testConfig.getTransactionWaitTime(), TimeUnit.SECONDS);
-//            return null;
-//
-//        } catch (Exception e) {
-//            Util.out("Caught an exception while invoking chaincode");
-//            e.printStackTrace();
-//            LOGGER.error("failed invoking chaincode with error : " + e.getMessage());
-//        }
+            Collection<ProposalResponse> successful = new LinkedList<>();
+            Collection<ProposalResponse> failed = new LinkedList<>();
+
+
+            client.setUserContext(TestConfigHelper.getSampleOrgByName("peerOrg1", testSampleOrgs).getPeerAdmin());
+
+            ///////////////
+            /// Send transaction proposal to all peers
+            TransactionProposalRequest transactionProposalRequest = client.newTransactionProposalRequest();
+            transactionProposalRequest.setChaincodeID(chainCodeID);
+            transactionProposalRequest.setFcn("invoke");
+            transactionProposalRequest.setArgs(new String[] {"move", "a", "b", entities.iterator().next().getValue().toString()});
+
+            Map<String, byte[]> tm2 = new HashMap<>();
+            tm2.put("HyperLedgerFabric", "TransactionProposalRequest:JavaSDK".getBytes(UTF_8));
+            tm2.put("method", "TransactionProposalRequest".getBytes(UTF_8));
+            tm2.put("result", ":)".getBytes(UTF_8));  /// This should be returned see chaincode.
+            transactionProposalRequest.setTransientMap(tm2);
+
+            Util.out("sending transactionProposal to all peers with arguments: move(a,b,100)");
+
+            Collection<ProposalResponse> transactionPropResp = chain.sendTransactionProposal(transactionProposalRequest, chain.getPeers());
+            for (ProposalResponse response : transactionPropResp) {
+                if (response.getStatus() == ProposalResponse.Status.SUCCESS) {
+                    Util.out("Successful transaction proposal response Txid: %s from peer %s", response.getTransactionID(), response.getPeer().getName());
+                    successful.add(response);
+                } else {
+                    failed.add(response);
+                }
+            }
+            Util.out("Received %d transaction proposal responses. Successful+verified: %d . failed: %d",
+                    transactionPropResp.size(), successful.size(), failed.size());
+            if (failed.size() > 0) {
+                ProposalResponse firstTransactionProposalResponse = failed.iterator().next();
+                LOGGER.error("Not enough endorsers for invoke(move a,b,100):" + failed.size() + " endorser error: " +
+                        firstTransactionProposalResponse.getMessage() +
+                        ". Was verified: " + firstTransactionProposalResponse.isVerified());
+            }
+            Util.out("Successfully received transaction proposal responses.");
+
+            ProposalResponse resp = transactionPropResp.iterator().next();
+            byte[] x = resp.getChainCodeActionResponsePayload(); // This is the data returned by the chaincode.
+            String resultAsString = null;
+            if (x != null) {
+                resultAsString = new String(x, "UTF-8");
+            }
+      //      LOGGER.info(":)", resultAsString);
+
+            LOGGER.info("Chaincode result status = " + resp.getChainCodeActionResponseStatus()); //Chaincode's status.
+
+            TxReadWriteSetInfo readWriteSetInfo = resp.getChainCodeActionResponseReadWriteSetInfo();
+            //See blockwaler below how to transverse this
+
+            LOGGER.info("Reset count = " + readWriteSetInfo.getNsRwsetCount());
+
+            ChainCodeID cid = resp.getChainCodeID();
+
+            LOGGER.info("Chaincode path " + cid.getPath());
+            LOGGER.info("Chaincode name " + cid.getName());
+            LOGGER.info("Chaincode version " + cid.getVersion());
+
+            ////////////////////////////
+            // Send Transaction Transaction to orderer
+            Util.out("Sending chain code transaction(move a,b,100) to orderer.");
+            chain.sendTransaction(successful).get(6, TimeUnit.SECONDS);
+            return (List<S>) entities;
+
+        } catch (Exception e) {
+            Util.out("Caught an exception while invoking chaincode");
+            e.printStackTrace();
+            LOGGER.error("failed invoking chaincode with error : " + e.getMessage());
+        }
 
         return null;
     }
@@ -349,26 +349,32 @@ public class LedgerAccountRepositoryImpl implements LedgerAccountRepository {
                     value = Integer.parseInt(payload);
                 }
             }
-            
+
             LedgerAccount currentLedgerAccount = new LedgerAccount();
             currentLedgerAccount.setId(id);
             currentLedgerAccount.setName(name);
             currentLedgerAccount.setValue(value);
-            
+
             return currentLedgerAccount;
         } catch (Exception e) {
             Util.out("Caught exception while running query");
             e.printStackTrace();
             LOGGER.error("failed during chaincode query with error : " + e.getMessage());
         }
-        
+
         return null;
     }
 
     @Override
     public <S extends LedgerAccount> S save(S arg0) {
-        // TODO Auto-generated method stub
-        return null;
+        // TODO Auto-generated method
+        ArrayList<S> accounts = new ArrayList<S>();
+        accounts.add(arg0);
+//        save(accounts);
+        List<S> saved = new ArrayList<S>();
+        saved = save(accounts);
+        LOGGER.debug("Account 1 id: " + saved.get(0).getName());
+        return saved.get(0);
     }
 
     @Override

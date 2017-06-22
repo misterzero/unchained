@@ -49,8 +49,8 @@ public class LedgerAccountResource {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new ledgerAccount cannot already have an ID")).body(null);
         }
         LedgerAccount result = ledgerAccountRepository.save(ledgerAccount);
-        return ResponseEntity.created(new URI("/api/ledger-accounts/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
+        return ResponseEntity.created(new URI("/api/ledger-accounts/" + result.getName()))
+            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getName().toString()))
             .body(result);
     }
 
@@ -87,7 +87,7 @@ public class LedgerAccountResource {
         log.debug("REST request to get all LedgerAccounts");
         return ledgerAccountRepository.findAll();
     }
-    
+
     /**
      * GET  /ledger-accounts/:id : get the "id" ledgerAccount.
      *
@@ -101,7 +101,7 @@ public class LedgerAccountResource {
 //        LedgerAccount ledgerAccount = ledgerAccountRepository.findOne(id);
 //        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(ledgerAccount));
 //    }
-    
+
     @GetMapping("/ledger-accounts/{id}")
     @Timed
     public ResponseEntity<LedgerAccount> getLedgerAccount(@PathVariable String id) {
