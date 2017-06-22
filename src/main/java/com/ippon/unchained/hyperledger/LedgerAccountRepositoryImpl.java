@@ -287,25 +287,16 @@ public class LedgerAccountRepositoryImpl implements LedgerAccountRepository {
 //		return null;
 //	}
 
-    @Override
-    public LedgerAccount findOne(Long id) {
+    public LedgerAccount findOne(String name) {
+
         try {
-
-            Util.waitOnFabric(0);
-
-//         assertTrue(transactionEvent.isValid()); // must be valid to be here.
-  //          Util.out("Finished transaction with transaction id %s", transactionEvent.getTransactionID());
-//         testTxID = transactionEvent.getTransactionID(); // used in the channel queries later
-
-            ////////////////////////////
-            // Send Query Proposal to all peers
-            //
-
             Util.out("Now query chain code for the value of b.");
             QueryByChaincodeRequest queryByChaincodeRequest = client.newQueryProposalRequest();
-            queryByChaincodeRequest.setArgs(new String[] {"query", id.toString()});
+            queryByChaincodeRequest.setArgs(new String[] {"query",name});
             queryByChaincodeRequest.setFcn("invoke");
             queryByChaincodeRequest.setChaincodeID(chainCodeID);
+            int value = 0;
+            Long id = (long) 1;
 
             Map<String, byte[]> tm2 = new HashMap<>();
             tm2.put("HyperLedgerFabric", "QueryByChaincodeRequest:JavaSDK".getBytes(UTF_8));
@@ -320,22 +311,24 @@ public class LedgerAccountRepositoryImpl implements LedgerAccountRepository {
                         + ". Was verified : " + proposalResponse.isVerified());
                 } else {
                     String payload = proposalResponse.getProposalResponse().getResponse().getPayload().toStringUtf8();
-                    Util.out("Query payload of" + id +"from peer %s returned %s", proposalResponse.getPeer().getName(), payload);
+                    Util.out("Query payload of b from peer %s returned %s", proposalResponse.getPeer().getName(), payload);
                     LOGGER.info("Payload :"+ payload);
+                    value = Integer.parseInt(payload);
                 }
             }
-
-            LedgerAccount ledgerAccount = new LedgerAccount();
-            ledgerAccount.setId(id);
-            ledgerAccount.setName(id.toString());
-
-
-
+            
+            LedgerAccount currentLedgerAccount = new LedgerAccount();
+            currentLedgerAccount.setId(id);
+            currentLedgerAccount.setName(name);
+            currentLedgerAccount.setValue(value);
+            
+            return currentLedgerAccount;
         } catch (Exception e) {
             Util.out("Caught exception while running query");
             e.printStackTrace();
             LOGGER.error("failed during chaincode query with error : " + e.getMessage());
         }
+        
         return null;
     }
 
@@ -368,4 +361,10 @@ public class LedgerAccountRepositoryImpl implements LedgerAccountRepository {
         // TODO Auto-generated method stub
         return null;
     }
+
+	@Override
+	public LedgerAccount findOne(Long id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

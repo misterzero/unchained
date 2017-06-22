@@ -87,16 +87,24 @@ public class LedgerAccountResource {
         log.debug("REST request to get all LedgerAccounts");
         return ledgerAccountRepository.findAll();
     }
-
+    
     /**
      * GET  /ledger-accounts/:id : get the "id" ledgerAccount.
      *
      * @param id the id of the ledgerAccount to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the ledgerAccount, or with status 404 (Not Found)
      */
+//    @GetMapping("/ledger-accounts/{id}")
+//    @Timed
+//    public ResponseEntity<LedgerAccount> getLedgerAccount(@PathVariable Long id) {
+//        log.debug("REST request to get LedgerAccount : {}", id);
+//        LedgerAccount ledgerAccount = ledgerAccountRepository.findOne(id);
+//        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(ledgerAccount));
+//    }
+    
     @GetMapping("/ledger-accounts/{id}")
     @Timed
-    public ResponseEntity<LedgerAccount> getLedgerAccount(@PathVariable Long id) {
+    public ResponseEntity<LedgerAccount> getLedgerAccount(@PathVariable String id) {
         log.debug("REST request to get LedgerAccount : {}", id);
         LedgerAccount ledgerAccount = ledgerAccountRepository.findOne(id);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(ledgerAccount));

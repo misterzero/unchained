@@ -12,5 +12,7 @@ import org.springframework.data.jpa.repository.*;
 @SuppressWarnings("unused")
 @Repository
 public interface LedgerAccountRepository extends JpaRepository<LedgerAccount,Long> {
+
+	LedgerAccount findOne(String id);
     
 }
