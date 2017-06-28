@@ -5,11 +5,10 @@ import com.ippon.unchained.domain.Poll;
 import com.ippon.unchained.repository.PollRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 
 /**
  * Service Implementation for managing Poll.
@@ -41,14 +40,13 @@ public class PollServiceImpl implements PollService{
     /**
      *  Get all the polls.
      *
-     *  @param pageable the pagination information
      *  @return the list of entities
      */
     @Override
     @Transactional(readOnly = true)
-    public Page<Poll> findAll(Pageable pageable) {
+    public List<Poll> findAll() {
         log.debug("Request to get all Polls");
-        return pollRepository.findAll(pageable);
+        return pollRepository.findAll();
     }
 
     /**

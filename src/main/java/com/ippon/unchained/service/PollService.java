@@ -1,8 +1,7 @@
 package com.ippon.unchained.service;
 
 import com.ippon.unchained.domain.Poll;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import java.util.List;
 
 /**
  * Service Interface for managing Poll.
@@ -20,10 +19,9 @@ public interface PollService {
     /**
      *  Get all the polls.
      *
-     *  @param pageable the pagination information
      *  @return the list of entities
      */
-    Page<Poll> findAll(Pageable pageable);
+    List<Poll> findAll();
 
     /**
      *  Get the "id" poll.

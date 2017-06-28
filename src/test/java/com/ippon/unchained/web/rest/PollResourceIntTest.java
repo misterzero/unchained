@@ -2,7 +2,6 @@ package com.ippon.unchained.web.rest;
 
 import com.ippon.unchained.UnchainedApp;
 
-import com.ippon.unchained.domain.Option;
 import com.ippon.unchained.domain.Poll;
 import com.ippon.unchained.repository.PollRepository;
 import com.ippon.unchained.service.PollService;
@@ -43,6 +42,7 @@ public class PollResourceIntTest {
 
     private static final String DEFAULT_NAME = "AAAAAAAAAA";
     private static final String UPDATED_NAME = "BBBBBBBBBB";
+
     private static final String DEFAULT_OPTIONS = "AAAAAAAAAA";
     private static final String UPDATED_OPTIONS = "BBBBBBBBBB";
 

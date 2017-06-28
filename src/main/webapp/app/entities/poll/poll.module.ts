@@ -13,7 +13,6 @@ import {
     PollDeleteDialogComponent,
     pollRoute,
     pollPopupRoute,
-    PollResolvePagingParams,
 } from './';
 
 const ENTITY_STATES = [
@@ -44,7 +43,6 @@ const ENTITY_STATES = [
     providers: [
         PollService,
         PollPopupService,
-        PollResolvePagingParams,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
