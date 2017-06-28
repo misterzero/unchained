@@ -1,12 +1,8 @@
-type option = {
-    name: string;
-    votes: number;
-}
 export class Poll {
     constructor(
         public id?: number,
         public name?: string,
-        public options?: option[],
+        public options?: string,
         public expiration?: any,
     ) {
     }
