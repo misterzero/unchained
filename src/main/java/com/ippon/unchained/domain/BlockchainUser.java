@@ -1,8 +1,12 @@
 package com.ippon.unchained.domain;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
+
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -52,9 +56,39 @@ public class BlockchainUser implements Serializable {
         return activePolls;
     }
 
+    public List<ActivePoll> getActivePollsAsList() {
+        ObjectMapper mapper = new ObjectMapper();
+        TypeFactory typeFactory = mapper.getTypeFactory();
+        try {
+            return mapper.readValue(this.getActivePolls(), typeFactory.constructCollectionType(List.class, ActivePoll.class));
+        } catch (Exception e) {
+
+        }
+        return null;
+    }
+
     public BlockchainUser activePolls(String activePolls) {
         this.activePolls = activePolls;
         return this;
+    }
+
+    public BlockchainUser activePolls(List<ActivePoll> activePolls) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            this.activePolls = mapper.writeValueAsString(activePolls);
+        } catch (Exception e) {
+
+        }
+        return this;
+    }
+
+    public void setActivePolls(List<ActivePoll> activePolls) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            this.activePolls = mapper.writeValueAsString(activePolls);
+        } catch (Exception e) {
+
+        }
     }
 
     public void setActivePolls(String activePolls) {
@@ -65,13 +99,72 @@ public class BlockchainUser implements Serializable {
         return inactivePolls;
     }
 
+    public List<String> getInactivePollsAsList() {
+        ObjectMapper mapper = new ObjectMapper();
+        TypeFactory typeFactory = mapper.getTypeFactory();
+        try {
+            return mapper.readValue(this.getInactivePolls(), typeFactory.constructCollectionType(List.class, String.class));
+        } catch (Exception e) {
+
+        }
+        return null;
+    }
+
     public BlockchainUser inactivePolls(String inactivePolls) {
         this.inactivePolls = inactivePolls;
         return this;
     }
 
+    public BlockchainUser inactivePolls(List<String> inactivePolls) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            this.inactivePolls = mapper.writeValueAsString(inactivePolls);
+        } catch (Exception e) {
+
+        }
+        return this;
+    }
+
+    public void setInactivePolls(List<String> inactivePolls) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            this.inactivePolls = mapper.writeValueAsString(inactivePolls);
+        } catch (Exception e) {
+
+        }
+    }
+
     public void setInactivePolls(String inactivePolls) {
         this.inactivePolls = inactivePolls;
+    }
+
+    // These six methods are redundant, HOWEVER,
+    // they are necessary for objectMapper to map properties correctly.
+    // Making the blockchain properties more verbose to match the above methods instead
+    // may be something to look into later.
+
+    public void setActive(String active) {
+        this.setActivePolls(active);
+    }
+
+    public String getActive() {
+        return  this.getActivePolls();
+    }
+
+    public BlockchainUser active(String active) {
+        return this.activePolls(active);
+    }
+
+    public void setInactive(String active) {
+        this.setInactivePolls(active);
+    }
+
+    public String getInactive() {
+        return  this.getInactivePolls();
+    }
+
+    public BlockchainUser inactive(String inactive) {
+        return this.activePolls(inactive);
     }
 
     @Override
@@ -101,6 +194,13 @@ public class BlockchainUser implements Serializable {
             ", name='" + getName() + "'" +
             ", activePolls='" + getActivePolls() + "'" +
             ", inactivePolls='" + getInactivePolls() + "'" +
+            "}";
+    }
+
+    public String toJSONString() {
+        return "{" +
+            "\"active\":" + getActivePolls() +
+            ", \"inactive\":" + getInactivePolls() +
             "}";
     }
 }

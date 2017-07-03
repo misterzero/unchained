@@ -10,7 +10,7 @@ package com.ippon.unchained.domain;
 public class Option {
     private String name;
 
-    private int votes = 0;
+    private int count = 0;
 
     public Option(String name) {
         this.name = name;
@@ -20,28 +20,39 @@ public class Option {
         return this.name;
     }
 
+    public Option name(String name) {
+        this.name = name;
+        return this;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
 
-    public int getVotes() {
-        return this.votes;
+    public int getCount() {
+        return this.count;
     }
 
-    public void setVotes(int votes) {
-       /**
-        * Using setVotes is safe here - it will only impact how we show votes to the front-end
-        * HOWEVER, if this function is ever used to set votes up when creating a new poll,
-        * this function must be removed as it allows for falsification of vote results
-        * (i.e. initializing votes for a certain option to be greater than zero)
-        */
-        this.votes = votes;
+    public Option count(int count) {
+        this.count = count;
+        return this;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
     }
 
     public String toString() {
         return "{" +
             "name=" + getName() +
-            ", votes='" + getVotes() + "'" +
+            ", count='" + getCount() + "'" +
+            "}";
+    }
+
+    public String toJSONString() {
+        return "{" +
+            "\"name\":\"" + getName() +
+            "\", \"count\":" + getCount() +
             "}";
     }
 }

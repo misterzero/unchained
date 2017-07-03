@@ -94,6 +94,13 @@ public class PollRepositoryImpl implements PollRepository {
         return null;
     }
 
+    /**
+     * TODO: Resolve code smell. Opening and closing connection repeatedly is obviously not optional,
+     * but the alternative is duplicating code from above and then iterating over each id...
+     * Fortunately, we likely will never call findAll, so we may avoid this issue altogether.
+     * @param ids
+     * @return
+     */
     public List<Poll> findAll(Collection<Long> ids) {
         List<Poll> polls = new ArrayList<>();
         for (Long id : ids) {
