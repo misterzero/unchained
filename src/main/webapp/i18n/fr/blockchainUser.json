@@ -1,0 +1,23 @@
+{
+    "unchainedApp": {
+        "blockchainUser" : {
+            "home": {
+                "title": "BlockchainUsers",
+                "createLabel": "Créer un nouveau Blockchain User",
+                "createOrEditLabel": "Créer ou éditer un Blockchain User"
+            },
+            "created": "Un nouveau Blockchain User a été créé avec l'identifiant {{ param }}",
+            "updated": "Le Blockchain User avec l'identifiant {{ param }} a été mis à jour",
+            "deleted": "Le Blockchain User avec l'identifiant {{ param }} a été supprimé",
+            "delete": {
+                "question": "Etes-vous certain de vouloir supprimer le Blockchain User {{ id }} ?"
+            },
+            "detail": {
+                "title": "Blockchain User"
+            },
+            "name": "Name",
+            "activePolls": "Active Polls",
+            "inactivePolls": "Inactive Polls"
+        }
+    }
+}
