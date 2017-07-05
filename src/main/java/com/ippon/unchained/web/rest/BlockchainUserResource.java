@@ -48,8 +48,8 @@ public class BlockchainUserResource {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new blockchainUser cannot already have an ID")).body(null);
         }
         BlockchainUser result = blockchainUserService.save(blockchainUser);
-        return ResponseEntity.created(new URI("/api/blockchain-users/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
+        return ResponseEntity.created(new URI("/api/blockchain-users/" + result.getName()))
+            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getName().toString()))
             .body(result);
     }
 
