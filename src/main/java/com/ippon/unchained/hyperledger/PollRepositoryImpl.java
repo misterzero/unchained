@@ -133,7 +133,8 @@ public class PollRepositoryImpl implements PollRepository {
             // transactionProposalRequest.setArgs(new String[] {"move", "a", "b", entities.iterator().next().getValue().toString()});
             // but .getValue() doesn't resolve when run against a Poll object, so it was changed to the line below.
             // It still likely does not complete as expected, but it passes a test for compiling this way!
-            transactionProposalRequest.setArgs(new String[] {"addUser", poll.getName()});
+            // TODO
+            transactionProposalRequest.setArgs(new String[] {"addNewPoll", poll.getName(), "{\"Options\":[{\"Name\":\"opt1\",\"Count\":0},{\"Name\":\"opt2\",\"Count\":0}],\"status\":1}"});
 
             Map<String, byte[]> tm2 = new HashMap<>();
             tm2.put("HyperLedgerFabric", "TransactionProposalRequest:JavaSDK".getBytes(UTF_8));
@@ -141,7 +142,7 @@ public class PollRepositoryImpl implements PollRepository {
             tm2.put("result", ":)".getBytes(UTF_8));  /// This should be returned see chaincode.
             transactionProposalRequest.setTransientMap(tm2);
 
-            Util.out("sending transactionProposal to all peers with arguments: \"addNewUser\","+poll.getName());
+            Util.out("sending transactionProposal to all peers with arguments: \"addNewPoll\","+poll.getName());
 
             Collection<ProposalResponse> transactionPropResp = chain.sendTransactionProposal(transactionProposalRequest, chain.getPeers());
             for (ProposalResponse response : transactionPropResp) {
