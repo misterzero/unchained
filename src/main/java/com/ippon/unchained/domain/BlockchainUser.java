@@ -143,36 +143,20 @@ public class BlockchainUser implements Serializable {
     // Making the blockchain properties more verbose to match the above methods instead
     // may be something to look into later.
 
-    public void setActive(String active) {
+    public void setActive(List active) {
         this.setActivePolls(active);
     }
 
-    public void setActive(List<ActivePoll> active) {
-        this.setActivePolls(active);
+    public List getActive() {
+        return  this.getActivePollsAsList();
     }
 
-    public String getActive() {
-        return  this.getActivePolls();
-    }
-
-    public BlockchainUser active(String active) {
-        return this.activePolls(active);
-    }
-
-    public void setInactive(String active) {
+    public void setInactive(List active) {
         this.setInactivePolls(active);
     }
 
-    public void setInactive(List<String> active) {
-        this.setInactivePolls(active);
-    }
-
-    public String getInactive() {
-        return  this.getInactivePolls();
-    }
-
-    public BlockchainUser inactive(String inactive) {
-        return this.activePolls(inactive);
+    public List getInactive() {
+        return  this.getInactivePollsAsList();
     }
 
     @Override
