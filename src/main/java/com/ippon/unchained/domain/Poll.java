@@ -32,6 +32,8 @@ public class Poll implements Serializable {
     @Column(name = "expiration")
     private LocalDate expiration;
 
+    private int status;
+
     public Long getId() {
         return id;
     }
@@ -84,9 +86,6 @@ public class Poll implements Serializable {
     }
 
     public void setOptions(List<Option> options) {
-        // NOTE: ONLY WORKS WITH A JSON STRING OF OPTIONS
-        // {"options": [{"opt1": 0}, {"opt2": 0}]}
-        // (format not tested yet)
         ObjectMapper mapper = new ObjectMapper();
         try {
             this.options = mapper.writeValueAsString(options);
@@ -98,7 +97,6 @@ public class Poll implements Serializable {
     public void setOptions(String options) {
         // NOTE: ONLY WORKS WITH A JSON STRING OF OPTIONS
         // {"options": [{"opt1": 0}, {"opt2": 0}]}
-        // (format not tested yet)
         this.options = options;
     }
 
@@ -113,6 +111,19 @@ public class Poll implements Serializable {
 
     public void setExpiration(LocalDate expiration) {
         this.expiration = expiration;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public Poll status(int status) {
+        this.status = status;
+        return this;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 
     @Override
@@ -137,12 +148,18 @@ public class Poll implements Serializable {
 
     @Override
     public String toString() {
-        // TODO: provide new method in place of getOptions that provides string representation of List<Option>
         return "Poll{" +
             "id=" + getId() +
             ", name='" + getName() + "'" +
             ", options='" + getOptions() + "'" +
             ", expiration='" + getExpiration() + "'" +
+            "}";
+    }
+
+    public String toJSONString() {
+        return "{" +
+            "\"options\":" + getOptions() +
+            ", \"status\":" + getStatus() +
             "}";
     }
 }
