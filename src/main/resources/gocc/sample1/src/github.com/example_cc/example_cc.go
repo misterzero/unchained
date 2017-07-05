@@ -267,10 +267,10 @@ func (t *SimpleChaincode) addUser(stub shim.ChaincodeStubInterface, args []strin
     var userExists bool
     var err error
 
-	if len(args) != 1 {
+	if len(args) != 2 {
 		return shim.Error("put operation must include one arguments, a key")
 	}
-	key := args[0]
+	key := args[1]
 	user, err = createUser()
 
 	if err != nil {
