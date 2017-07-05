@@ -9,6 +9,7 @@
                 "main": "Entités",
                 "ledgerAccount": "Ledger Account",
                 "poll": "Poll",
+                "blockchainUser": "Blockchain User",
                 "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
             },
             "account": {

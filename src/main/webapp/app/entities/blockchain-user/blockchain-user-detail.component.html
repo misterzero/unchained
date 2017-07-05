@@ -1,0 +1,33 @@
+
+<div *ngIf="blockchainUser">
+    <h2><span jhiTranslate="unchainedApp.blockchainUser.detail.title">Blockchain User</span> {{blockchainUser.id}}</h2>
+    <hr>
+    <jhi-alert-error></jhi-alert-error>
+    <dl class="row-md jh-entity-details">
+        <dt><span jhiTranslate="unchainedApp.blockchainUser.name">Name</span></dt>
+        <dd>
+            <span>{{blockchainUser.name}}</span>
+        </dd>
+        <dt><span jhiTranslate="unchainedApp.blockchainUser.activePolls">Active Polls</span></dt>
+        <dd>
+            <span>{{blockchainUser.activePolls}}</span>
+        </dd>
+        <dt><span jhiTranslate="unchainedApp.blockchainUser.inactivePolls">Inactive Polls</span></dt>
+        <dd>
+            <span>{{blockchainUser.inactivePolls}}</span>
+        </dd>
+    </dl>
+
+    <button type="submit"
+            (click)="previousState()"
+            class="btn btn-info">
+        <span class="fa fa-arrow-left"></span>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
+    </button>
+
+    <button type="button"
+            [routerLink]="['/', { outlets: { popup: 'blockchain-user/'+ blockchainUser.id + '/edit'} }]"
+            replaceUrl="true"
+            class="btn btn-primary">
+        <span class="fa fa-pencil"></span>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
+    </button>
+</div>
