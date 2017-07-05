@@ -1,0 +1,23 @@
+{
+    "fluentMethods": true,
+    "relationships": [],
+    "fields": [
+        {
+            "fieldName": "name",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "options",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "expiration",
+            "fieldType": "LocalDate"
+        }
+    ],
+    "changelogDate": "20170627170544",
+    "dto": "no",
+    "service": "serviceImpl",
+    "entityTableName": "poll",
+    "pagination": "no"
+}
