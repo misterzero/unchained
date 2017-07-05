@@ -1,7 +1,7 @@
 package com.ippon.unchained.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
-
+import com.ippon.unchained.domain.BlockchainUser;
 import com.ippon.unchained.domain.PersistentToken;
 import com.ippon.unchained.domain.User;
 import com.ippon.unchained.repository.PersistentTokenRepository;
@@ -28,7 +28,8 @@ import javax.validation.Valid;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.*;
-
+import com.ippon.unchained.domain.BlockchainUser; 
+import com.ippon.unchained.repository.BlockchainUserRepository;
 /**
  * REST controller for managing the current user's account.
  */
@@ -45,14 +46,16 @@ public class AccountResource {
     private final MailService mailService;
 
     private final PersistentTokenRepository persistentTokenRepository;
+    
+    private final BlockchainUserRepository blockchainUserRepository;
 
-    public AccountResource(UserRepository userRepository, UserService userService,
-            MailService mailService, PersistentTokenRepository persistentTokenRepository) {
+    public AccountResource(UserRepository userRepository, UserService userService, MailService mailService, PersistentTokenRepository persistentTokenRepository, BlockchainUserRepository blockchainUserRepository) {
 
         this.userRepository = userRepository;
         this.userService = userService;
         this.mailService = mailService;
         this.persistentTokenRepository = persistentTokenRepository;
+        this.blockchainUserRepository = blockchainUserRepository;
     }
 
     /**
@@ -61,7 +64,8 @@ public class AccountResource {
      * @param managedUserVM the managed user View Model
      * @return the ResponseEntity with status 201 (Created) if the user is registered or 400 (Bad Request) if the login or email is already in use
      */
-    @PostMapping(path = "/register",
+    @SuppressWarnings("null")
+	@PostMapping(path = "/register",
         produces={MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE})
     @Timed
     public ResponseEntity registerAccount(@Valid @RequestBody ManagedUserVM managedUserVM) {
@@ -71,6 +75,14 @@ public class AccountResource {
         if (!checkPasswordLength(managedUserVM.getPassword())) {
             return new ResponseEntity<>("Incorrect password", HttpStatus.BAD_REQUEST);
         }
+        
+        BlockchainUser blockchainUser = null;
+        blockchainUser.setName(managedUserVM.getLogin().toLowerCase());
+        blockchainUser.setActivePolls("");
+        blockchainUser.setInactivePolls("");
+        
+        blockchainUserRepository.save(blockchainUser);
+        
         return userRepository.findOneByLogin(managedUserVM.getLogin().toLowerCase())
             .map(user -> new ResponseEntity<>("login already in use", textPlainHeaders, HttpStatus.BAD_REQUEST))
             .orElseGet(() -> userRepository.findOneByEmail(managedUserVM.getEmail())
