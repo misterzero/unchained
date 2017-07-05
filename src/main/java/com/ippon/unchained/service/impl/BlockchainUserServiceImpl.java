@@ -57,7 +57,7 @@ public class BlockchainUserServiceImpl implements BlockchainUserService{
      */
     @Override
     @Transactional(readOnly = true)
-    public BlockchainUser findOne(Long id) {
+    public BlockchainUser findOne(String id) {
         log.debug("Request to get BlockchainUser : {}", id);
         return blockchainUserRepository.findOne(id);
     }

@@ -12,5 +12,5 @@ import org.springframework.data.jpa.repository.*;
 @SuppressWarnings("unused")
 @Repository
 public interface BlockchainUserRepository extends JpaRepository<BlockchainUser,Long> {
-    
+    BlockchainUser findOne(String id);
 }

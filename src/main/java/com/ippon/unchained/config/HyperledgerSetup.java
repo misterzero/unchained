@@ -202,7 +202,7 @@ public class HyperledgerSetup {
 			instantiateProposalRequest.setProposalWaitTime(60000);
 			instantiateProposalRequest.setChaincodeID(chainCodeID);
 			instantiateProposalRequest.setFcn("init");
-			instantiateProposalRequest.setArgs(new String[] { "a", "500", "b", "" + (200 + delta) });
+			instantiateProposalRequest.setArgs(new String[] { "admin", "user"});
 			Map<String, byte[]> tm = new HashMap<>();
 			tm.put("HyperLedgerFabric", "InstantiateProposalRequest:JavaSDK".getBytes(UTF_8));
 			tm.put("method", "InstantiateProposalRequest".getBytes(UTF_8));

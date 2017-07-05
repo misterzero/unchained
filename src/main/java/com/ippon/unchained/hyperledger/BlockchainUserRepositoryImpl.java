@@ -1,6 +1,7 @@
 package com.ippon.unchained.hyperledger;
 
 import com.ippon.unchained.domain.BlockchainUser;
+import com.ippon.unchained.domain.LedgerAccount;
 import com.ippon.unchained.repository.BlockchainUserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
@@ -38,30 +39,26 @@ public class BlockchainUserRepositoryImpl implements BlockchainUserRepository {
     @Autowired
     private Collection<SampleOrg> testSampleOrgs;
 
-    @Override
-    public BlockchainUser findOne(Long id) {
+    
+    public BlockchainUser findOne(String name) {
         // Payload for a BlockchainUser should be in the format...
         // {"id":1, "active":[{"id":"1","votes":"1"},{"id":"2","votes":"1"}], "history":[{"id":"3"},{"id":"4"}]}
-        try {
-            Util.out("Now query chain code for the value of %s.",id);
+    	try {
+    		ObjectMapper mapper = new ObjectMapper();
+            Util.out("Now query chain code for the value of b.");
             QueryByChaincodeRequest queryByChaincodeRequest = client.newQueryProposalRequest();
-            queryByChaincodeRequest.setArgs(new String[] {"query",id.toString()});
+            queryByChaincodeRequest.setArgs(new String[] {"query",name});
             queryByChaincodeRequest.setFcn("invoke");
             queryByChaincodeRequest.setChaincodeID(chainCodeID);
+            int value = 0;
+            Long id = (long) 1;
+            String payload = null;
+            
             Map<String, byte[]> tm2 = new HashMap<>();
-            ObjectMapper mapper = new ObjectMapper();
-
-            // First set up an empty currentPoll to return
-            BlockchainUser currentUser = new BlockchainUser();
-            currentUser.setId(id);
-            currentUser.setName("");
-            currentUser.setActivePolls("");
-            currentUser.setInactivePolls("");
-
             tm2.put("HyperLedgerFabric", "QueryByChaincodeRequest:JavaSDK".getBytes(UTF_8));
             tm2.put("method", "QueryByChaincodeRequest".getBytes(UTF_8));
             queryByChaincodeRequest.setTransientMap(tm2);
-
+            
             Collection<ProposalResponse> queryProposals = chain.queryByChaincode(queryByChaincodeRequest, chain.getPeers());
             for (ProposalResponse proposalResponse : queryProposals) {
                 if (!proposalResponse.isVerified() || proposalResponse.getStatus() != ProposalResponse.Status.SUCCESS) {
@@ -69,16 +66,18 @@ public class BlockchainUserRepositoryImpl implements BlockchainUserRepository {
                         ". Messages: " + proposalResponse.getMessage()
                         + ". Was verified : " + proposalResponse.isVerified());
                 } else {
-                    String payload = proposalResponse.getProposalResponse().getResponse().getPayload().toStringUtf8();
-                    Util.out("Query payload of %s from peer %s returned %s", id, proposalResponse.getPeer().getName(), payload);
+                    payload = proposalResponse.getProposalResponse().getResponse().getPayload().toStringUtf8();
+                    Util.out("Query payload of b from peer %s returned %s", proposalResponse.getPeer().getName(), payload);
                     LOGGER.info("Payload :"+ payload);
-                    // TODO: NEEDS TO BE TESTED - OPTIONS MAY NOT GET STORED PROPERLY
-                    // mapper stores values first by matching instance member names, then by matching setter/getter names
-                    currentUser = mapper.readValue(payload, BlockchainUser.class);
                 }
             }
 
-            return currentUser;
+            BlockchainUser currentBlockchainUser = new BlockchainUser();
+            currentBlockchainUser.setId(id);
+            currentBlockchainUser.setName(name);
+            currentBlockchainUser = mapper.readValue(payload, BlockchainUser.class);
+            
+            return currentBlockchainUser;
         } catch (Exception e) {
             Util.out("Caught exception while running query");
             e.printStackTrace();
@@ -307,4 +306,10 @@ public class BlockchainUserRepositoryImpl implements BlockchainUserRepository {
     public <S extends BlockchainUser> boolean exists(Example<S> example) {
         return false;
     }
+
+	@Override
+	public BlockchainUser findOne(Long arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
