@@ -20,6 +20,8 @@ export class PollDialogComponent implements OnInit {
     authorities: any[];
     isSaving: boolean;
     expirationDp: any;
+    options: any[];
+
 
     constructor(
         public activeModal: NgbActiveModal,
@@ -27,6 +29,8 @@ export class PollDialogComponent implements OnInit {
         private pollService: PollService,
         private eventManager: EventManager
     ) {
+
+
     }
 
     ngOnInit() {
@@ -47,6 +51,10 @@ export class PollDialogComponent implements OnInit {
             this.subscribeToSaveResponse(
                 this.pollService.create(this.poll), true);
         }
+    }
+
+    addNewOption() {
+        this.options.push('id : choice'+this.options.length+1);
     }
 
     private subscribeToSaveResponse(result: Observable<Poll>, isCreated: boolean) {
