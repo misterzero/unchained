@@ -169,8 +169,6 @@ public class HyperledgerSetup {
 				// only a client from the same org as the peer can issue an
 				//////////////////////////// install request
 				int numInstallProposal = 0;
-				// Set<String> orgs = orgPeers.keySet();
-				// for (SampleOrg org : testSampleOrgs) {
 				SampleOrg testOrg = TestConfigHelper.getSampleOrgByName("peerOrg1", testSampleOrgs);
 
 				Set<Peer> peersFromOrg = testOrg.getPeers();
@@ -186,7 +184,6 @@ public class HyperledgerSetup {
 						failed.add(response);
 					}
 				}
-				// }
 				Util.out("Received %d install proposal responses. Successful+verified: %d . failed: %d",
 						numInstallProposal, successful.size(), failed.size());
 
@@ -195,9 +192,7 @@ public class HyperledgerSetup {
 					log.error("Not enough endorsers for install :" + successful.size() + ".  " + first.getMessage());
 				}
 			}
-
-			///////////////
-			//// Instantiate chain code.
+			// Instantiate chain code.
 			InstantiateProposalRequest instantiateProposalRequest = client.newInstantiationProposalRequest();
 			instantiateProposalRequest.setProposalWaitTime(60000);
 			instantiateProposalRequest.setChaincodeID(chainCodeID);
@@ -217,9 +212,7 @@ public class HyperledgerSetup {
 			chaincodeEndorsementPolicy.fromYamlFile(new File(TEST_FIXTURES_PATH + "/chaincodeendorsementpolicy.yaml"));
 			instantiateProposalRequest.setChaincodeEndorsementPolicy(chaincodeEndorsementPolicy);
 
-			Util.out(
-					"Sending instantiateProposalRequest to all peers with arguments: a and b set to 100 and %s respectively",
-					"" + (200 + delta));
+			Util.out("Sending instantiateProposalRequest to all peers with arguments: admin and user");
 			successful.clear();
 			failed.clear();
 
@@ -243,18 +236,12 @@ public class HyperledgerSetup {
 
 			///////////////
 			/// Send instantiate transaction to orderer
-			Util.out("Sending instantiateTransaction to orderer with a and b set to 100 and %s respectively",
-					"" + (200 + delta));
+			Util.out("Sending instantiateTransaction to orderer with admin and user");
 			chain.sendTransaction(successful, orderers).thenApply(transactionEvent -> {
 
 				Util.waitOnFabric(0);
 
-				log.info("transaction valid = " + transactionEvent.isValid()); // must
-																				// be
-																				// valid
-																				// to
-																				// be
-																				// here.
+				log.info("transaction valid = " + transactionEvent.isValid()); 
 				Util.out("Finished instantiate transaction with transaction id %s",
 						transactionEvent.getTransactionID());
 				return null;
