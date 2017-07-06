@@ -190,7 +190,7 @@ public class UserService {
                 	blockchainUser.setName(login); 
                 	blockchainUser.setActivePolls(""); 
                 	blockchainUser.setInactivePolls("");
-                	blockchainUser.setId((long) 0);
+                	blockchainUser.setId(user.getId());
                 	blockchainUserRepositoryImpl.save(blockchainUser);
                 }
                 user.setActivated(userDTO.isActivated());

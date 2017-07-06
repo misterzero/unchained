@@ -222,7 +222,7 @@ public class BlockchainUserRepositoryImpl implements BlockchainUserRepository {
             // transactionProposalRequest.setArgs(new String[] {"move", "a", "b", entities.iterator().next().getValue().toString()});
             // but .getValue() doesn't resolve when run against a Poll object, so it was changed to the line below.
             // It still likely does not complete as expected, but it passes a test for compiling this way!
-            transactionProposalRequest.setArgs(new String[] {"addUser", entities.iterator().next().getName()});
+            transactionProposalRequest.setArgs(new String[] {"addUser", entities.iterator().next().getId().toString()});
 
             Map<String, byte[]> tm2 = new HashMap<>();
             tm2.put("HyperLedgerFabric", "TransactionProposalRequest:JavaSDK".getBytes(StandardCharsets.UTF_8));

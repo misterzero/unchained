@@ -108,7 +108,7 @@ public class AccountResource {
     	blockchainUser.setName(user.getLogin()); 
     	blockchainUser.setActivePolls(""); 
     	blockchainUser.setInactivePolls("");
-    	blockchainUser.setId((long) 0);
+    	blockchainUser.setId(user.getId());
     	Util.out("just before SAVE");
     	blockchainUserRepositoryImpl.save(blockchainUser); 
     	Util.out("just after SAVE");
