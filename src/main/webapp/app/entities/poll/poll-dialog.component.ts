@@ -35,8 +35,8 @@ export class PollDialogComponent implements OnInit {
     ngOnInit() {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_ADMIN'];
-        this.options = [{'id': 'option1'}];
-        this.voters = [{'id': 'voter1'}];
+        this.options = [{id: 'option1'}];
+        this.voters = [{id: 'voter1'}];
     }
 
     clear() {
@@ -49,6 +49,7 @@ export class PollDialogComponent implements OnInit {
             this.subscribeToSaveResponse(
                 this.pollService.update(this.poll), false);
         } else {
+            this.setPollOptions();
             this.subscribeToSaveResponse(
                 this.pollService.create(this.poll), true);
         }
@@ -56,6 +57,11 @@ export class PollDialogComponent implements OnInit {
 
     addNewOption() {
         this.options.push({'id': 'option' + (this.options.length + 1)});
+    }
+
+    setPollOptions() {
+        // Writes just the 'names' from the options object array into a csv string
+        this.poll.options = Array.prototype.map.call(this.options, (s) => s.name).toString();
     }
 
     removeLastOption() {
