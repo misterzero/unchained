@@ -4,6 +4,7 @@ export class Poll {
         public name?: string,
         public options?: string,
         public expiration?: any,
+        public voters?: string,
     ) {
     }
 }
