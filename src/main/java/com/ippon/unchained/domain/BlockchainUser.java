@@ -138,33 +138,25 @@ public class BlockchainUser implements Serializable {
         this.inactivePolls = inactivePolls;
     }
 
-    // These six methods are redundant, HOWEVER,
+    // These eight methods are redundant, HOWEVER,
     // they are necessary for objectMapper to map properties correctly.
     // Making the blockchain properties more verbose to match the above methods instead
     // may be something to look into later.
 
-    public void setActive(String active) {
+    public void setActive(List active) {
         this.setActivePolls(active);
     }
 
-    public String getActive() {
-        return  this.getActivePolls();
+    public List getActive() {
+        return  this.getActivePollsAsList();
     }
 
-    public BlockchainUser active(String active) {
-        return this.activePolls(active);
-    }
-
-    public void setInactive(String active) {
+    public void setInactive(List active) {
         this.setInactivePolls(active);
     }
 
-    public String getInactive() {
-        return  this.getInactivePolls();
-    }
-
-    public BlockchainUser inactive(String inactive) {
-        return this.activePolls(inactive);
+    public List getInactive() {
+        return  this.getInactivePollsAsList();
     }
 
     @Override

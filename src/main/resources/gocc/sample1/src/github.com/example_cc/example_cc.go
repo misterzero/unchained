@@ -55,36 +55,44 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	fmt.Println("########### example_cc Init ###########")
 	_, args := stub.GetFunctionAndParameters()
 	var A, B string    // Entities
-	var Aval, Bval int // Asset holdings
-	var err error
+	var user User 
+	var userAsJsonByteArray []byte
+    var userAsJsonString string
+    var err error
 
-	if len(args) != 4 {
+	if len(args) != 2 {
 		return shim.Error("Incorrect number of arguments. Expecting 4")
 	}
 
 	// Initialize the chaincode
 	A = args[0]
-	Aval, err = strconv.Atoi(args[1])
-	if err != nil {
-		return shim.Error("Expecting integer value for asset holding")
-	}
-	B = args[2]
-	Bval, err = strconv.Atoi(args[3])
-	if err != nil {
-		return shim.Error("Expecting integer value for asset holding")
-	}
-	fmt.Printf("Aval = %d, Bval = %d\n", Aval, Bval)
+	
+	B = args[1]
 
-	// Write the state to the ledger
-	err = stub.PutState(A, []byte(strconv.Itoa(Aval)))
+	user, err = createUser()
+
+	if err != nil {
+		return shim.Error("Expecting integer value for asset holding")
+	}
+
+	userAsJsonByteArray, err = getUserAsJsonByteArray(user)
+    if err != nil{
+        return shim.Error(err.Error())
+    }
+
+    userAsJsonString = string(userAsJsonByteArray)
+	
+	err = stub.PutState(A, []byte(userAsJsonString))
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	err = stub.PutState(B, []byte(userAsJsonString))
 	if err != nil {
 		return shim.Error(err.Error())
 	}
 
-	err = stub.PutState(B, []byte(strconv.Itoa(Bval)))
-	if err != nil {
-		return shim.Error(err.Error())
-	}
+
+	fmt.Printf(A+" and "+B+" have been added to the ledger" )
 
 	if transientMap, err := stub.GetTransient(); err == nil {
 		if transientData, ok := transientMap["result"]; ok {
