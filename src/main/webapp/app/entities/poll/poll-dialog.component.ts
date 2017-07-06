@@ -34,7 +34,7 @@ export class PollDialogComponent implements OnInit {
     ngOnInit() {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_ADMIN'];
-        this.options = [{'id': 'option1'}, {'id': 'option2'}];
+        this.options = [{'id': 'option1'}];
     }
 
     clear() {
