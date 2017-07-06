@@ -1,7 +1,10 @@
 package com.ippon.unchained.service;
 
 import com.ippon.unchained.domain.Authority;
+import com.ippon.unchained.domain.BlockchainUser;
 import com.ippon.unchained.domain.User;
+import com.ippon.unchained.hyperledger.BlockchainUserRepositoryImpl;
+import com.ippon.unchained.hyperledger.Util;
 import com.ippon.unchained.repository.AuthorityRepository;
 import com.ippon.unchained.repository.PersistentTokenRepository;
 import com.ippon.unchained.config.Constants;
@@ -15,6 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -42,12 +47,15 @@ public class UserService {
     private final PersistentTokenRepository persistentTokenRepository;
 
     private final AuthorityRepository authorityRepository;
+    
+    private BlockchainUserRepositoryImpl blockchainUserRepositoryImpl;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, PersistentTokenRepository persistentTokenRepository, AuthorityRepository authorityRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, PersistentTokenRepository persistentTokenRepository, AuthorityRepository authorityRepository, BlockchainUserRepositoryImpl blockchainUserRepositoryImpl) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.persistentTokenRepository = persistentTokenRepository;
         this.authorityRepository = authorityRepository;
+        this.blockchainUserRepositoryImpl = blockchainUserRepositoryImpl;
     }
 
     public Optional<User> activateRegistration(String key) {
@@ -175,6 +183,16 @@ public class UserService {
                 user.setLastName(userDTO.getLastName());
                 user.setEmail(userDTO.getEmail());
                 user.setImageUrl(userDTO.getImageUrl());
+                if (user.getActivated() == false && userDTO.isActivated()==true){
+                	BlockchainUser blockchainUser = new BlockchainUser();
+                	Util.out("THE LOGIN IS: "+ userDTO.getLogin()+" WRITTEN HERE");
+                	String login = userDTO.getLogin();
+                	blockchainUser.setName(login); 
+                	blockchainUser.setActivePolls(""); 
+                	blockchainUser.setInactivePolls("");
+                	blockchainUser.setId((long) 0);
+                	blockchainUserRepositoryImpl.save(blockchainUser);
+                }
                 user.setActivated(userDTO.isActivated());
                 user.setLangKey(userDTO.getLangKey());
                 Set<Authority> managedAuthorities = user.getAuthorities();

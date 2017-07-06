@@ -4,6 +4,8 @@ import com.codahale.metrics.annotation.Timed;
 import com.ippon.unchained.domain.BlockchainUser;
 import com.ippon.unchained.domain.PersistentToken;
 import com.ippon.unchained.domain.User;
+import com.ippon.unchained.hyperledger.BlockchainUserRepositoryImpl;
+import com.ippon.unchained.hyperledger.Util;
 import com.ippon.unchained.repository.PersistentTokenRepository;
 import com.ippon.unchained.repository.UserRepository;
 import com.ippon.unchained.security.SecurityUtils;
@@ -47,15 +49,15 @@ public class AccountResource {
 
     private final PersistentTokenRepository persistentTokenRepository;
     
-    private final BlockchainUserRepository blockchainUserRepository;
+    private BlockchainUserRepositoryImpl blockchainUserRepositoryImpl;
 
-    public AccountResource(UserRepository userRepository, UserService userService, MailService mailService, PersistentTokenRepository persistentTokenRepository, BlockchainUserRepository blockchainUserRepository) {
+    public AccountResource(UserRepository userRepository, UserService userService, MailService mailService, PersistentTokenRepository persistentTokenRepository, BlockchainUserRepositoryImpl blockchainUserRepositoryImpl) {
 
         this.userRepository = userRepository;
         this.userService = userService;
         this.mailService = mailService;
         this.persistentTokenRepository = persistentTokenRepository;
-        this.blockchainUserRepository = blockchainUserRepository;
+        this.blockchainUserRepositoryImpl = blockchainUserRepositoryImpl;
     }
 
     /**
@@ -75,13 +77,6 @@ public class AccountResource {
         if (!checkPasswordLength(managedUserVM.getPassword())) {
             return new ResponseEntity<>("Incorrect password", HttpStatus.BAD_REQUEST);
         }
-        
-        BlockchainUser blockchainUser = null;
-        blockchainUser.setName(managedUserVM.getLogin().toLowerCase());
-        blockchainUser.setActivePolls("");
-        blockchainUser.setInactivePolls("");
-        
-        blockchainUserRepository.save(blockchainUser);
         
         return userRepository.findOneByLogin(managedUserVM.getLogin().toLowerCase())
             .map(user -> new ResponseEntity<>("login already in use", textPlainHeaders, HttpStatus.BAD_REQUEST))
@@ -104,13 +99,27 @@ public class AccountResource {
      * GET  /activate : activate the registered user.
      *
      * @param key the activation key
+     * @return 
      * @return the ResponseEntity with status 200 (OK) and the activated user in body, or status 500 (Internal Server Error) if the user couldn't be activated
      */
+    public ResponseEntity<String> addUser(User user){
+    	Util.out("the addUser fucntion begins");
+    	BlockchainUser blockchainUser = null;
+    	blockchainUser.setName(user.getLogin()); 
+    	blockchainUser.setActivePolls(""); 
+    	blockchainUser.setInactivePolls("");
+    	blockchainUser.setId((long) 0);
+    	Util.out("just before SAVE");
+    	blockchainUserRepositoryImpl.save(blockchainUser); 
+    	Util.out("just after SAVE");
+    	return new ResponseEntity<String>(HttpStatus.OK);
+    }
     @GetMapping("/activate")
     @Timed
     public ResponseEntity<String> activateAccount(@RequestParam(value = "key") String key) {
+    	Util.out("ACTIVATION OHOHOHOHOHOHO");
         return userService.activateRegistration(key)
-            .map(user -> new ResponseEntity<String>(HttpStatus.OK))
+            .map(user -> addUser(user))
             .orElse(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
