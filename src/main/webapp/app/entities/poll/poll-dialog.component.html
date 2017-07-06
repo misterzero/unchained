@@ -17,9 +17,9 @@
             <input type="text" class="form-control" name="name" id="field_name"
                 [(ngModel)]="poll.name"  />
         </div>
-        <div class="form-group" data-ng-repeat="option in options">
+        <div class="form-group" *ngFor="let option of options">
             <label class="form-control-label" jhiTranslate="unchainedApp.poll.options" for="field_options">Options</label>
-            <button ng-click="addNewOption()">Add another choice</button>
+            <button type="button" class="btn btn-default" (click)="addNewOption()" [hidden]="false">Add another choice</button>
             <input type="text" class="form-control" name="options" id="field_options"
                 [(ngModel)]="poll.options"  />
         </div>

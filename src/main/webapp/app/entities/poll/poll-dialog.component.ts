@@ -22,7 +22,6 @@ export class PollDialogComponent implements OnInit {
     expirationDp: any;
     options: any[];
 
-
     constructor(
         public activeModal: NgbActiveModal,
         private alertService: AlertService,
@@ -30,12 +29,12 @@ export class PollDialogComponent implements OnInit {
         private eventManager: EventManager
     ) {
 
-
     }
 
     ngOnInit() {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_ADMIN'];
+        this.options = [{'id': 'option1'}, {'id': 'option2'}];
     }
 
     clear() {
@@ -54,7 +53,7 @@ export class PollDialogComponent implements OnInit {
     }
 
     addNewOption() {
-        this.options.push('id : choice'+this.options.length+1);
+        this.options.push({'id': 'option' + (this.options.length + 1)});
     }
 
     private subscribeToSaveResponse(result: Observable<Poll>, isCreated: boolean) {
