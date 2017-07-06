@@ -159,7 +159,7 @@ public class Poll implements Serializable {
     public String toJSONString() {
         return "{" +
             "\"options\":" + getOptions() +
-            ", \"status\":" + getStatus() +
+            ",\"status\":" + getStatus() +
             "}";
     }
 }

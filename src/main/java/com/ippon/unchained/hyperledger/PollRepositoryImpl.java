@@ -116,12 +116,12 @@ public class PollRepositoryImpl implements PollRepository {
     @Override
     public <S extends Poll> List<S> save(Iterable<S> entities) {
         try {
-            LOGGER.debug("Starting save ledger method");
             Collection<ProposalResponse> successful = new LinkedList<>();
             Collection<ProposalResponse> failed = new LinkedList<>();
 
-            Poll poll = entities.iterator().next();
+            Poll poll = setupPoll(entities.iterator().next());
 
+            LOGGER.debug("Poll JSON: \n" + poll.toJSONString());
             client.setUserContext(TestConfigHelper.getSampleOrgByName("peerOrg1", testSampleOrgs).getPeerAdmin());
 
             ///////////////
@@ -134,7 +134,7 @@ public class PollRepositoryImpl implements PollRepository {
             // but .getValue() doesn't resolve when run against a Poll object, so it was changed to the line below.
             // It still likely does not complete as expected, but it passes a test for compiling this way!
             // TODO
-            transactionProposalRequest.setArgs(new String[] {"addNewPoll", poll.getName(), "{\"Options\":[{\"Name\":\"opt1\",\"Count\":0},{\"Name\":\"opt2\",\"Count\":0}],\"status\":1}"});
+            transactionProposalRequest.setArgs(new String[] {"addNewPoll", poll.getName(), poll.toJSONString()});
 
             Map<String, byte[]> tm2 = new HashMap<>();
             tm2.put("HyperLedgerFabric", "TransactionProposalRequest:JavaSDK".getBytes(UTF_8));
@@ -197,6 +197,19 @@ public class PollRepositoryImpl implements PollRepository {
         }
 
         return null;
+    }
+
+    private <S extends Poll> Poll setupPoll(S poll) {
+        String[] optionNames = poll.getOptions().split(",");
+        ArrayList<Option> options = new ArrayList<>();
+        for(String s : optionNames) {
+            Option option = new Option(s);
+            option.setCount(0);
+            options.add(option);
+        }
+        poll.setOptions(options);
+        poll.setStatus(1);
+        return poll;
     }
 
     @Override
