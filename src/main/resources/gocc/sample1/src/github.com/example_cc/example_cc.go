@@ -313,42 +313,49 @@ func (t *SimpleChaincode) addUser(stub shim.ChaincodeStubInterface, args []strin
 func (t *SimpleChaincode) newQuery(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 
     var key string // Entities
-
     var err error
+    var poll Poll
+    var pollAsStringIfStatusOne string
+    var pollAsByteIfStatusOne []byte
 
     if len(args) != 2 {
-
         return shim.Error("Incorrect number of arguments. Expecting name of the person to query")
-
     }
-
     key = args[1]
 
     // Get the state from the ledger
-
-    keyValBytes, err := stub.GetState(key)
-
+    pollAsBytes, err := stub.GetState(key)
     if err != nil {
-
         jsonResp := "{\"Error\":\"Failed to get state for " + key + "\"}"
-
         return shim.Error(jsonResp)
 
     }
-
-    if keyValBytes == nil {
-
+    if pollAsBytes == nil {
         jsonResp := "{\"Error\":\"Nil amount for " + key + "\"}"
-
         return shim.Error(jsonResp)
-
+    }
+    poll, err = getPollFromJsonByteArray(pollAsBytes)
+    if err != nil{
+        return shim.Error(err.Error())
+    }
+    if(poll.Status==1){
+        pollAsStringIfStatusOne = "{\"options\":["
+        for i := 0; i < len(poll.Options); i++ {
+            if i==0 {
+                pollAsStringIfStatusOne = pollAsStringIfStatusOne + "{\"name\":\"" +poll.Options[i].Name+"\",\"count\":0}"
+            } else {
+                pollAsStringIfStatusOne = pollAsStringIfStatusOne + ",{\"name\":\"" +poll.Options[i].Name+"\",\"count\":0}"
+            }
+        }
+        pollAsStringIfStatusOne = pollAsStringIfStatusOne + "],\"status\":1}"
+        pollAsByteIfStatusOne = []byte(pollAsStringIfStatusOne)
+        fmt.Printf("Query Response:%s\n", pollAsStringIfStatusOne)
+        return shim.Success(pollAsByteIfStatusOne)
     }
 
-    jsonResp := "{\"Id\":\"" + key + "\",\"Value\":\"" + string(keyValBytes) + "\"}"
+    fmt.Printf("Query Response:%s\n", string(pollAsBytes))
 
-    fmt.Printf("Query Response:%s\n", jsonResp)
-
-    return shim.Success(keyValBytes)
+    return shim.Success(pollAsBytes)
 }
 
 //peer chaincode invoke -o orderer.example.com:7050 -C mychannel -n mycc -c '{"Args":["addNewActivePollToUser","c","my_poll0"]}'
