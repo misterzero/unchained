@@ -17,10 +17,17 @@
             <input type="text" class="form-control" name="name" id="field_name"
                 [(ngModel)]="poll.name"  />
         </div>
-        <div class="form-group">
-            <label class="form-control-label" jhiTranslate="unchainedApp.poll.options" for="field_options">Options</label>
-            <input type="text" class="form-control" name="options" id="field_options"
-                [(ngModel)]="poll.options"  />
+        <div class="form-group" *ngFor="let option of options; let last = last; let first = first; let i = index">
+            <label class="form-control-label" jhiTranslate="unchainedApp.poll.options" *ngIf="first" for="field_options">Options</label>
+            <button type="button" class="btn btn-default" (click)="addNewOption()" *ngIf="last">Add another choice</button>
+            <input type="text" class="form-control" name="optionName_{{i}}" id="field_options"
+                   [(ngModel)]="option.text"  />
+        </div>
+        <div class="form-group" *ngFor="let voter of voters; let first = first; let last = last; let i = index">
+            <label class="form-control-label" jhiTranslate="unchainedApp.poll.voters" *ngIf="first" for="field_options">Voters</label>
+            <button type="button" class="btn btn-default" (click)="addNewVoter()" *ngIf="last">Add another voter</button>
+            <input type="text" class="form-control" name="voterName_{{i}}" id="field_voters"
+                   [(ngModel)]="voter.text"  />
         </div>
         <div class="form-group">
             <label class="form-control-label" jhiTranslate="unchainedApp.poll.expiration" for="field_expiration">Expiration</label>

@@ -4,6 +4,7 @@ import com.ippon.unchained.UnchainedApp;
 import com.ippon.unchained.domain.Authority;
 import com.ippon.unchained.domain.PersistentToken;
 import com.ippon.unchained.domain.User;
+import com.ippon.unchained.hyperledger.BlockchainUserRepositoryImpl;
 import com.ippon.unchained.repository.AuthorityRepository;
 import com.ippon.unchained.repository.PersistentTokenRepository;
 import com.ippon.unchained.repository.UserRepository;
@@ -71,6 +72,9 @@ public class AccountResourceIntTest {
     @Autowired
     private HttpMessageConverter[] httpMessageConverters;
 
+    @Autowired
+    private BlockchainUserRepositoryImpl blockchainUserRepository;
+
     @Mock
     private UserService mockUserService;
 
@@ -87,10 +91,12 @@ public class AccountResourceIntTest {
         doNothing().when(mockMailService).sendActivationEmail(anyObject());
 
         AccountResource accountResource =
-            new AccountResource(userRepository, userService, mockMailService, persistentTokenRepository);
+            new AccountResource(userRepository, userService, mockMailService,
+                persistentTokenRepository, blockchainUserRepository);
 
         AccountResource accountUserMockResource =
-            new AccountResource(userRepository, mockUserService, mockMailService, persistentTokenRepository);
+            new AccountResource(userRepository, mockUserService, mockMailService,
+                persistentTokenRepository, blockchainUserRepository);
 
         this.restMvc = MockMvcBuilders.standaloneSetup(accountResource)
             .setMessageConverters(httpMessageConverters)

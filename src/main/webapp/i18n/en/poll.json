@@ -17,6 +17,9 @@
             },
             "name": "Name",
             "options": "Options",
+            "option": "Option",
+            "voters": "Voters",
+            "voter": "Voter",
             "expiration": "Expiration"
         }
     }

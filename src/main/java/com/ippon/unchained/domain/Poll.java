@@ -34,6 +34,10 @@ public class Poll implements Serializable {
 
     private int status;
 
+    // This variable is used for storage when creating a poll - see use in PollRepositoryImpl.java's save()
+    // format: "anon@ymo.us,andrea@gmail.com,julian@funbrain.net,..." (CSV)
+    private String voters;
+
     public Long getId() {
         return id;
     }
@@ -126,6 +130,14 @@ public class Poll implements Serializable {
         this.status = status;
     }
 
+    public void setVoters(String voters) {
+        this.voters = voters;
+    }
+
+    public String getVoters() {
+        return this.voters;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -159,7 +171,7 @@ public class Poll implements Serializable {
     public String toJSONString() {
         return "{" +
             "\"options\":" + getOptions() +
-            ", \"status\":" + getStatus() +
+            ",\"status\":" + getStatus() +
             "}";
     }
 }
