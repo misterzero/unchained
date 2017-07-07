@@ -109,15 +109,12 @@ public class AccountResource {
     	blockchainUser.setActivePolls(""); 
     	blockchainUser.setInactivePolls("");
     	blockchainUser.setId(user.getId());
-    	Util.out("just before SAVE");
-    	blockchainUserRepositoryImpl.save(blockchainUser); 
-    	Util.out("just after SAVE");
+    	blockchainUserRepositoryImpl.save(blockchainUser);
     	return new ResponseEntity<String>(HttpStatus.OK);
     }
     @GetMapping("/activate")
     @Timed
     public ResponseEntity<String> activateAccount(@RequestParam(value = "key") String key) {
-    	Util.out("ACTIVATION OHOHOHOHOHOHO");
         return userService.activateRegistration(key)
             .map(user -> addUser(user))
             .orElse(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
