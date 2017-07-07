@@ -62,8 +62,12 @@ export class PollDialogComponent implements OnInit {
     }
 
     setPollOptions() {
+        // Removes empty objects from array
+        let options = this.options.filter(function(option){
+            return option.text;
+        });
         // Writes just the 'names' from the options object array into a csv string
-        this.poll.options = Array.prototype.map.call(this.options, (s) => s.text).toString();
+        this.poll.options = Array.prototype.map.call(options, (s) => s.text).toString();
     }
 
     removeLastOption() {
@@ -75,8 +79,11 @@ export class PollDialogComponent implements OnInit {
     }
 
     setPollVoters() {
+        let voters = this.voters.filter(function(vote){
+            return vote.text;
+        });
         // Writes just the 'names' from the options object array into a csv string
-        this.poll.voters = Array.prototype.map.call(this.voters, (s) => s.text).toString();
+        this.poll.voters = Array.prototype.map.call(voters, (s) => s.text).toString();
     }
 
     removeLastVoter() {
