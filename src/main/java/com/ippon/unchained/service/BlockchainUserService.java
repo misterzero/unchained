@@ -29,7 +29,7 @@ public interface BlockchainUserService {
      *  @param id the id of the entity
      *  @return the entity
      */
-    BlockchainUser findOne(Long id);
+    BlockchainUser findOne(String id);
 
     /**
      *  Delete the "id" blockchainUser.

@@ -48,8 +48,8 @@ public class BlockchainUserResource {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new blockchainUser cannot already have an ID")).body(null);
         }
         BlockchainUser result = blockchainUserService.save(blockchainUser);
-        return ResponseEntity.created(new URI("/api/blockchain-users/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
+        return ResponseEntity.created(new URI("/api/blockchain-users/" + result.getName()))
+            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getName().toString()))
             .body(result);
     }
 
@@ -95,7 +95,7 @@ public class BlockchainUserResource {
      */
     @GetMapping("/blockchain-users/{id}")
     @Timed
-    public ResponseEntity<BlockchainUser> getBlockchainUser(@PathVariable Long id) {
+    public ResponseEntity<BlockchainUser> getBlockchainUser(@PathVariable String id) {
         log.debug("REST request to get BlockchainUser : {}", id);
         BlockchainUser blockchainUser = blockchainUserService.findOne(id);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(blockchainUser));
