@@ -165,7 +165,7 @@ public class LedgerAccountRepositoryImpl implements LedgerAccountRepository {
             TransactionProposalRequest transactionProposalRequest = client.newTransactionProposalRequest();
             transactionProposalRequest.setChaincodeID(chainCodeID);
             transactionProposalRequest.setFcn("invoke");
-            transactionProposalRequest.setArgs(new String[] {"mover", "a", "b", entities.iterator().next().getValue().toString()});
+            transactionProposalRequest.setArgs(new String[] {"move", "a", "b", entities.iterator().next().getValue().toString()});
 
             Map<String, byte[]> tm2 = new HashMap<>();
             tm2.put("HyperLedgerFabric", "TransactionProposalRequest:JavaSDK".getBytes(UTF_8));
@@ -173,7 +173,7 @@ public class LedgerAccountRepositoryImpl implements LedgerAccountRepository {
             tm2.put("result", ":)".getBytes(UTF_8));  /// This should be returned see chaincode.
             transactionProposalRequest.setTransientMap(tm2);
 
-            Util.out("sending transactionProposal to all peers with arguments: mover(a,b,100)");
+            Util.out("sending transactionProposal to all peers with arguments: move(a,b,100)");
 
             Collection<ProposalResponse> transactionPropResp = chain.sendTransactionProposal(transactionProposalRequest, chain.getPeers());
             for (ProposalResponse response : transactionPropResp) {
