@@ -38,6 +38,13 @@ public class Poll implements Serializable {
     // format: "anon@ymo.us,andrea@gmail.com,julian@funbrain.net,..." (CSV)
     private String voters;
 
+    public Poll(String name) {
+        this.name = name;
+    }
+
+    public Poll() {
+    }
+
     public Long getId() {
         return id;
     }

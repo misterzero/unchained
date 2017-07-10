@@ -52,12 +52,12 @@ public class HyperledgerSetup {
 
 	private static final String FOO_CHAIN_NAME = "foo";
 	private static final String BAR_CHAIN_NAME = "bar";
-	
-	private ChainCodeID chainCodeID; 
-	
+
+	private ChainCodeID chainCodeID;
+
 	@Autowired
 	private HFClient client;
-	
+
 	@Autowired
 	private Chain chain;
 
@@ -99,7 +99,7 @@ public class HyperledgerSetup {
 
 			for (SampleOrg sampleOrg : testSampleOrgs) {
 
-				
+
 				// and jump tall blockchains in a single leap!
 			}
 		} catch (Exception e) {
@@ -197,7 +197,7 @@ public class HyperledgerSetup {
 			instantiateProposalRequest.setProposalWaitTime(60000);
 			instantiateProposalRequest.setChaincodeID(chainCodeID);
 			instantiateProposalRequest.setFcn("init");
-			instantiateProposalRequest.setArgs(new String[] { "admin", "user"});
+			instantiateProposalRequest.setArgs(new String[] { "1", "3"}); // admin = 3, system = 1
 			Map<String, byte[]> tm = new HashMap<>();
 			tm.put("HyperLedgerFabric", "InstantiateProposalRequest:JavaSDK".getBytes(UTF_8));
 			tm.put("method", "InstantiateProposalRequest".getBytes(UTF_8));
@@ -241,7 +241,7 @@ public class HyperledgerSetup {
 
 				Util.waitOnFabric(0);
 
-				log.info("transaction valid = " + transactionEvent.isValid()); 
+				log.info("transaction valid = " + transactionEvent.isValid());
 				Util.out("Finished instantiate transaction with transaction id %s",
 						transactionEvent.getTransactionID());
 				return null;
@@ -269,11 +269,11 @@ public class HyperledgerSetup {
 	}
 	private void setChainCodeId(ChainCodeID ccId) {
 		this.chainCodeID = ccId;
-		
+
 	}
 
 
 
-	
+
 
 }

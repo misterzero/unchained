@@ -1,7 +1,11 @@
 package com.ippon.unchained.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import com.ippon.unchained.domain.ActivePoll;
+import com.ippon.unchained.domain.BlockchainUser;
 import com.ippon.unchained.domain.Poll;
+import com.ippon.unchained.security.SecurityUtils;
+import com.ippon.unchained.service.BlockchainUserService;
 import com.ippon.unchained.service.PollService;
 import com.ippon.unchained.web.rest.util.HeaderUtil;
 import io.github.jhipster.web.util.ResponseUtil;
@@ -13,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,8 +34,11 @@ public class PollResource {
 
     private final PollService pollService;
 
-    public PollResource(PollService pollService) {
+    private final BlockchainUserService blockchainUserService;
+
+    public PollResource(PollService pollService, BlockchainUserService blockchainUserService) {
         this.pollService = pollService;
+        this.blockchainUserService = blockchainUserService;
     }
 
     /**
@@ -83,8 +91,20 @@ public class PollResource {
     @GetMapping("/polls")
     @Timed
     public List<Poll> getAllPolls() {
-        log.debug("REST request to get all Polls");
-        return pollService.findAll();
+        List<Poll> pollList = new ArrayList<>();
+        log.debug("REST request to get all Polls for user "+SecurityUtils.getCurrentUserId().toString());
+        BlockchainUser bcu =  blockchainUserService.findOne(SecurityUtils.getCurrentUserId().toString());
+        log.debug("BlockchainUser obtained with activePolls: " + bcu.getActivePolls());
+        log.debug("Converting activePolls string to list");
+        List<ActivePoll> apl = bcu.getActivePollsAsList();
+        log.debug("activePolls obtained as list");
+        log.debug("activePolls list: " + apl.toString());
+        for (ActivePoll ap : apl) {
+            Poll poll = new Poll();
+            poll.setName(ap.getName());
+            pollList.add(poll);
+        }
+        return pollList;
     }
 
     /**

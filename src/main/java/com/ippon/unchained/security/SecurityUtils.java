@@ -34,6 +34,29 @@ public final class SecurityUtils {
     }
 
     /**
+     * Get the ID of the current user.
+     *
+     * @return the ID of the current user
+     */
+    public static Long getCurrentUserId() {
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        Authentication authentication = securityContext.getAuthentication();
+        String id = null;
+        if (authentication != null) {
+            if (authentication.getPrincipal() instanceof UserDetails) {
+                id = ((UserDetails) authentication.getPrincipal()).getUsername();
+            } else if (authentication.getPrincipal() instanceof String) {
+                id = (String) authentication.getPrincipal();
+            }
+        }
+        try {
+            return Long.valueOf(id != null ? id : "1"); //anonymous user
+        } catch (Exception e) {
+            return 1L;
+        }
+    }
+
+    /**
      * Check if a user is authenticated.
      *
      * @return true if the user is authenticated, false otherwise

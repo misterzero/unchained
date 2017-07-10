@@ -121,7 +121,7 @@ public class PollRepositoryImpl implements PollRepository {
     }
 
     public void tx(Poll poll){
-    	
+
         try {
         	Collection<ProposalResponse> successful = new LinkedList<>();
             Collection<ProposalResponse> failed = new LinkedList<>();
@@ -215,10 +215,10 @@ public class PollRepositoryImpl implements PollRepository {
 		}
 
         ///////////////
-        
+
     }
-    
-    
+
+
     @Override
     public <S extends Poll> List<S> save(Iterable<S> entities) {
         try {
@@ -294,7 +294,7 @@ public class PollRepositoryImpl implements PollRepository {
             // Send Transaction Transaction to orderer
             Util.out("Sending chain code transaction(move a,b,100) to orderer.");
             chain.sendTransaction(successful).get(6, TimeUnit.SECONDS);
-            
+
             tx(poll);
             return (List<S>) entities;
 
@@ -338,6 +338,16 @@ public class PollRepositoryImpl implements PollRepository {
 
     @Override
     public List<Poll> findAll() {
+        return null;
+    }
+
+    public List<Poll> findAll(String user) {
+        // This is the function called from /poll
+
+        // Get the current user's ID
+        // BlockchainUser currentUser = (mapper convert) blockchainUserRepositoryImpl.findOne(currentID);
+        // return active polls
+        // TODO: run multiple queries for active vs inactive? return all in one? change structure being returned??
         return null;
     }
 

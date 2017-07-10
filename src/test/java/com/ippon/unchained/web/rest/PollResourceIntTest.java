@@ -4,6 +4,7 @@ import com.ippon.unchained.UnchainedApp;
 
 import com.ippon.unchained.domain.Poll;
 import com.ippon.unchained.repository.PollRepository;
+import com.ippon.unchained.service.BlockchainUserService;
 import com.ippon.unchained.service.PollService;
 import com.ippon.unchained.web.rest.errors.ExceptionTranslator;
 
@@ -67,6 +68,8 @@ public class PollResourceIntTest {
     @Autowired
     private EntityManager em;
 
+    private BlockchainUserService blockchainUserService;
+
     private MockMvc restPollMockMvc;
 
     private Poll poll;
@@ -74,7 +77,7 @@ public class PollResourceIntTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        PollResource pollResource = new PollResource(pollService);
+        PollResource pollResource = new PollResource(pollService, blockchainUserService);
         this.restPollMockMvc = MockMvcBuilders.standaloneSetup(pollResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
