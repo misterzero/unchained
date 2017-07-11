@@ -92,16 +92,15 @@ public class PollResource {
     @Timed
     public List<Poll> getAllPolls() {
         List<Poll> pollList = new ArrayList<>();
-        log.debug("REST request to get all Polls for user "+SecurityUtils.getCurrentUserId().toString());
-        BlockchainUser bcu =  blockchainUserService.findOne(SecurityUtils.getCurrentUserId().toString());
-        log.debug("BlockchainUser obtained with activePolls: " + bcu.getActivePolls());
-        log.debug("Converting activePolls string to list");
-        List<ActivePoll> apl = bcu.getActivePollsAsList();
-        log.debug("activePolls obtained as list");
-        log.debug("activePolls list: " + apl.toString());
-        for (ActivePoll ap : apl) {
+        BlockchainUser blockchainUser = blockchainUserService.findOne(SecurityUtils.getCurrentUserId().toString());
+        for (ActivePoll ap : blockchainUser.getActivePollsAsList()) {
             Poll poll = new Poll();
             poll.setName(ap.getName());
+            pollList.add(poll);
+        }
+        for (String ip : blockchainUser.getInactivePollsAsList()) {
+            Poll poll = new Poll();
+            poll.setName(ip);
             pollList.add(poll);
         }
         return pollList;
