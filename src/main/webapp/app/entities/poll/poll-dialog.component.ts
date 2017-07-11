@@ -9,6 +9,7 @@ import { EventManager, AlertService } from 'ng-jhipster';
 import { Poll } from './poll.model';
 import { PollPopupService } from './poll-popup.service';
 import { PollService } from './poll.service';
+import { ITEMS_PER_PAGE, Principal, User, UserService, ResponseWrapper } from '../../shared';
 
 @Component({
     selector: 'jhi-poll-dialog',
@@ -22,8 +23,10 @@ export class PollDialogComponent implements OnInit {
     expirationDp: any;
     options: any[];
     voters: any[];
+	users: User[];
 
     constructor(
+    	private userService: UserService,
         public activeModal: NgbActiveModal,
         private alertService: AlertService,
         private pollService: PollService,
@@ -37,6 +40,7 @@ export class PollDialogComponent implements OnInit {
         this.authorities = ['ROLE_USER', 'ROLE_ADMIN'];
         this.options = [{'id': 'option1', 'text': ''}];
         this.voters = [{'id': 'voter1', 'text': ''}];
+        this.loadAll()
     }
 
     clear() {
@@ -62,7 +66,8 @@ export class PollDialogComponent implements OnInit {
     }
 
     setPollOptions() {
-        // Writes just the 'names' from the options object array into a csv string
+        // Writes just the 'names' from the options object array into a csv
+		// string
         this.poll.options = Array.prototype.map.call(this.options, (s) => s.text).toString();
     }
 
@@ -75,7 +80,8 @@ export class PollDialogComponent implements OnInit {
     }
 
     setPollVoters() {
-        // Writes just the 'names' from the options object array into a csv string
+        // Writes just the 'names' from the options object array into a csv
+		// string
         this.poll.voters = Array.prototype.map.call(this.voters, (s) => s.text).toString();
     }
 
@@ -86,6 +92,17 @@ export class PollDialogComponent implements OnInit {
     private subscribeToSaveResponse(result: Observable<Poll>, isCreated: boolean) {
         result.subscribe((res: Poll) =>
             this.onSaveSuccess(res, isCreated), (res: Response) => this.onSaveError(res));
+    }
+    
+    loadAll() {
+    	this.userService.query().subscribe(
+            (res: ResponseWrapper) => this.onSuccess(res.json, res.headers),
+            (res: ResponseWrapper) => this.onError(res.json)
+        );
+    }
+    
+    private onSuccess(data, headers) {
+        this.users = data;
     }
 
     private onSaveSuccess(result: Poll, isCreated: boolean) {
