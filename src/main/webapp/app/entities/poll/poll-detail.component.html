@@ -10,7 +10,12 @@
         </dd>
         <dt><span jhiTranslate="unchainedApp.poll.options">Options</span></dt>
         <dd>
-            <span>{{poll.options}}</span>
+            <div *ngFor="let option of options; let i = index">
+                <button type="button"
+                        class="btn btn-primary">
+                    <span class="fa"></span>&nbsp;<span>{{option}}</span>
+                </button>
+            </div>
         </dd>
         <dt><span jhiTranslate="unchainedApp.poll.expiration">Expiration</span></dt>
         <dd>

@@ -1,6 +1,7 @@
 package com.ippon.unchained.hyperledger;
 
 import com.fasterxml.jackson.core.ObjectCodec;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.ippon.unchained.domain.LedgerAccount;
@@ -59,7 +60,7 @@ public class PollRepositoryImpl implements PollRepository {
         try {
             Util.out("Now query chain code for the value of %s.",id);
             QueryByChaincodeRequest queryByChaincodeRequest = client.newQueryProposalRequest();
-            queryByChaincodeRequest.setArgs(new String[] {"query",id.toString()});
+            queryByChaincodeRequest.setArgs(new String[] {"newQuery",id.toString()});
             queryByChaincodeRequest.setFcn("invoke");
             queryByChaincodeRequest.setChaincodeID(chainCodeID);
             Map<String, byte[]> tm2 = new HashMap<>();
@@ -86,8 +87,81 @@ public class PollRepositoryImpl implements PollRepository {
                     String payload = proposalResponse.getProposalResponse().getResponse().getPayload().toStringUtf8();
                     Util.out("Query payload of %s from peer %s returned %s", id, proposalResponse.getPeer().getName(), payload);
                     LOGGER.info("Payload :"+ payload);
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    JsonNode root = objectMapper.readTree(payload);
+                    JsonNode opNode = root.findPath("options");
+                    LOGGER.debug("OptionNode: " + opNode);
+                    ArrayList<Option> optionList = new ArrayList<Option>();
+                    for (int i=0;i<opNode.size();i++) {
+                        Option newOp = new Option(opNode.get(i).get("name").textValue());
+                        newOp.setCount(opNode.get(i).get("count").asInt());
+                        optionList.add(newOp);
+                    }
+                    LOGGER.debug("Options:\n" + optionList);
                     // NEEDS TO BE TESTED - OPTIONS MAY NOT GET STORED PROPERLY
-                    currentPoll = mapper.readValue(payload, Poll.class);
+//                    currentPoll = setupPoll(payload);
+                    currentPoll.setOptions(optionList);
+                }
+            }
+
+            return currentPoll;
+        } catch (Exception e) {
+            Util.out("Caught exception while running query");
+            e.printStackTrace();
+            LOGGER.error("failed during chaincode query with error : " + e.getMessage());
+        }
+
+        return null;
+    }
+
+    @Override
+    public Poll findOne(String name) {
+        // Payload for a Poll should be in the format..
+        // {"id":1, "name":"Poll's Name?", "options":[{"opt1":0},{"opt2":12"}, ... ], "expiration":LocalDate}
+        try {
+            Util.out("Now query chain code for the value of %s.",name);
+            QueryByChaincodeRequest queryByChaincodeRequest = client.newQueryProposalRequest();
+            queryByChaincodeRequest.setArgs(new String[] {"newQuery",name});
+            queryByChaincodeRequest.setFcn("invoke");
+            queryByChaincodeRequest.setChaincodeID(chainCodeID);
+            Map<String, byte[]> tm2 = new HashMap<>();
+            ObjectMapper mapper = new ObjectMapper();
+
+            // First set up an empty currentPoll to return
+            Poll currentPoll = new Poll();
+//            currentPoll.setId(id);
+            currentPoll.setName(name);
+            currentPoll.setExpiration(LocalDate.now());
+            currentPoll.setOptions(new ArrayList());
+
+            tm2.put("HyperLedgerFabric", "QueryByChaincodeRequest:JavaSDK".getBytes(UTF_8));
+            tm2.put("method", "QueryByChaincodeRequest".getBytes(UTF_8));
+            queryByChaincodeRequest.setTransientMap(tm2);
+
+            Collection<ProposalResponse> queryProposals = chain.queryByChaincode(queryByChaincodeRequest, chain.getPeers());
+            for (ProposalResponse proposalResponse : queryProposals) {
+                if (!proposalResponse.isVerified() || proposalResponse.getStatus() != ProposalResponse.Status.SUCCESS) {
+                    LOGGER.error("failed query proposal from peer " + proposalResponse.getPeer().getName() + " status: " + proposalResponse.getStatus() +
+                        ". Messages: " + proposalResponse.getMessage()
+                        + ". Was verified : " + proposalResponse.isVerified());
+                } else {
+                    String payload = proposalResponse.getProposalResponse().getResponse().getPayload().toStringUtf8();
+                    Util.out("Query payload of %s from peer %s returned %s", name, proposalResponse.getPeer().getName(), payload);
+                    LOGGER.info("Payload :"+ payload);
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    JsonNode root = objectMapper.readTree(payload);
+                    JsonNode opNode = root.findPath("options");
+                    LOGGER.debug("OptionNode: " + opNode);
+                    ArrayList<Option> optionList = new ArrayList<Option>();
+                    for (int i=0;i<opNode.size();i++) {
+                        Option newOp = new Option(opNode.get(i).get("name").textValue());
+                        newOp.setCount(opNode.get(i).get("count").asInt());
+                        optionList.add(newOp);
+                    }
+                    LOGGER.debug("Options:\n" + optionList);
+                    // NEEDS TO BE TESTED - OPTIONS MAY NOT GET STORED PROPERLY
+//                    currentPoll = setupPoll(payload);
+                    currentPoll.setOptions(optionList);
                 }
             }
 
@@ -116,12 +190,8 @@ public class PollRepositoryImpl implements PollRepository {
         return polls;
     }
 
-    public Poll findOne(String name) {
-        return null;
-    }
-
     public void tx(Poll poll){
-    	
+
         try {
         	Collection<ProposalResponse> successful = new LinkedList<>();
             Collection<ProposalResponse> failed = new LinkedList<>();
@@ -215,10 +285,10 @@ public class PollRepositoryImpl implements PollRepository {
 		}
 
         ///////////////
-        
+
     }
-    
-    
+
+
     @Override
     public <S extends Poll> List<S> save(Iterable<S> entities) {
         try {
@@ -227,7 +297,7 @@ public class PollRepositoryImpl implements PollRepository {
 
             Poll poll = setupPoll(entities.iterator().next());
 
-            LOGGER.debug("Poll JSON: \n" + poll.toJSONString());
+            LOGGER.debug("Poll JSON: \n" + poll.toString());
             client.setUserContext(TestConfigHelper.getSampleOrgByName("peerOrg1", testSampleOrgs).getPeerAdmin());
 
             ///////////////
@@ -294,7 +364,7 @@ public class PollRepositoryImpl implements PollRepository {
             // Send Transaction Transaction to orderer
             Util.out("Sending chain code transaction(move a,b,100) to orderer.");
             chain.sendTransaction(successful).get(6, TimeUnit.SECONDS);
-            
+
             tx(poll);
             return (List<S>) entities;
 

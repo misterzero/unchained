@@ -15,6 +15,7 @@ export class PollDetailComponent implements OnInit, OnDestroy {
     poll: Poll;
     private subscription: Subscription;
     private eventSubscriber: Subscription;
+    options: any[];
 
     constructor(
         private eventManager: EventManager,
@@ -24,16 +25,32 @@ export class PollDetailComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
+        this.options = [];
         this.subscription = this.route.params.subscribe((params) => {
             this.load(params['id']);
         });
         this.registerChangeInPolls();
     }
 
+    showOptions() {
+        console.log('showOptions');
+        console.log(this.poll.options);
+        let json : Options = JSON.parse(this.poll.options);
+        console.log('Length: ' + Object.keys(json).length);
+        console.log('Json name:' + json[0].name);
+        console.log('Json name:' + json[1].name);
+        for(let i=0;i<Object.keys(json).length;i++) {
+            console.log(json[i].name);
+            this.options.push(json[i].name);
+        }
+        console.log('Options:' + this.options);
+    }
     load(id) {
         this.pollService.find(id).subscribe((poll) => {
             this.poll = poll;
+            this.showOptions();
         });
+
     }
     previousState() {
         window.history.back();
@@ -50,4 +67,12 @@ export class PollDetailComponent implements OnInit, OnDestroy {
             (response) => this.load(this.poll.id)
         );
     }
+}
+
+interface Options {
+    string: Option;
+}
+interface Option {
+    name: string;
+    count: number;
 }

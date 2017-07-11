@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A Poll.
@@ -18,6 +19,8 @@ import java.util.Objects;
 public class Poll implements Serializable {
 
     private static final long serialVersionUID = 1L;
+    private static final AtomicInteger nextId = new AtomicInteger(1);
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,6 +40,19 @@ public class Poll implements Serializable {
     // This variable is used for storage when creating a poll - see use in PollRepositoryImpl.java's save()
     // format: "anon@ymo.us,andrea@gmail.com,julian@funbrain.net,..." (CSV)
     private String voters;
+
+    public Poll() {
+    }
+
+    public Poll(String name, String options, LocalDate expiration, int status, String voters) {
+        this.id = nextId.longValue();
+        this.name = name;
+        this.options = options;
+        this.expiration = expiration;
+        this.status = status;
+        this.voters = voters;
+        nextId.incrementAndGet();
+    }
 
     public Long getId() {
         return id;
@@ -138,6 +154,11 @@ public class Poll implements Serializable {
         return this.voters;
     }
 
+    public Poll clone() {
+        Poll p = new Poll(name,options,expiration,status,voters);
+        return p;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -164,6 +185,7 @@ public class Poll implements Serializable {
             "id=" + getId() +
             ", name='" + getName() + "'" +
             ", options='" + getOptions() + "'" +
+            ", voters='" + getVoters() + "'" +
             ", expiration='" + getExpiration() + "'" +
             "}";
     }

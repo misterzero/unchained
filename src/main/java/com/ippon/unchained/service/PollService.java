@@ -32,6 +32,14 @@ public interface PollService {
     Poll findOne(Long id);
 
     /**
+     *  Get the "name" poll.
+     *
+     *  @param name the name of the entity
+     *  @return the entity
+     */
+    Poll findOne(String name);
+
+    /**
      *  Delete the "id" poll.
      *
      *  @param id the id of the entity

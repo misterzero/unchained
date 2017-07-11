@@ -62,6 +62,14 @@ public class PollServiceImpl implements PollService{
         return pollRepository.findOne(id);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Poll findOne(String name) {
+        log.debug("Request to get Poll : {}", name);
+
+        return pollRepository.findOne(name);
+    }
+
     /**
      *  Delete the  poll by id.
      *
