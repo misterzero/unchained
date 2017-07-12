@@ -281,7 +281,7 @@ public class UserService {
         return authorityRepository.findAll().stream().map(Authority::getName).collect(Collectors.toList());
     }
     
-    public List<User> getAllLoginAndId(){
-    	return userRepository.findAllIdAndLogin();
+    public List<User> getAllNameAndId(){
+    	return userRepository.findAllIdAndFirstLastName();
     }
 }

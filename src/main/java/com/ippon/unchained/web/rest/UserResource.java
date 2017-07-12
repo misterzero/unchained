@@ -158,7 +158,7 @@ public class UserResource {
     @GetMapping("/users/voters")
     @Timed
     public ResponseEntity<List<User>> getAllUserByLoginAndId(){
-    	final List<User> users = userService.getAllLoginAndId();
+    	final List<User> users = userService.getAllNameAndId();
     	return new ResponseEntity <List<User>> (users, HttpStatus.ACCEPTED);
     }
 

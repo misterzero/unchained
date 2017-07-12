@@ -35,6 +35,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Page<User> findAllByLoginNot(Pageable pageable, String login);
     
-    @Query("select u.id, u.login from User u")
-    List<User> findAllIdAndLogin();
+    @Query("select u.id, u.firstName, u.lastName from User u")
+    List<User> findAllIdAndFirstLastName();
 }

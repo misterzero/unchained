@@ -32,7 +32,7 @@ export class UserService {
             .map((res: Response) => this.convertResponse(res));
     }
     
-    queryByLoginAndId(): Observable<ResponseWrapper> {
+    queryByNameAndId(): Observable<ResponseWrapper> {
         return this.http.get('api/users/voters')
             .map((res: Response) => this.convertResponse(res));
     }

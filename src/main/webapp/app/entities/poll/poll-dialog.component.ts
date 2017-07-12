@@ -96,7 +96,7 @@ export class PollDialogComponent implements OnInit {
     }
     
     loadAll() {
-    	this.userService.queryByLoginAndId().subscribe(
+    	this.userService.queryByNameAndId().subscribe(
             (res: ResponseWrapper) => this.onSuccess(res.json, res.headers),
             (res: ResponseWrapper) => this.onError(res.json)
         );
@@ -168,13 +168,16 @@ export class PollPopupComponent implements OnInit, OnDestroy {
 
 export class Voter{
 	public id?: any;
-    public login?: string;
+	public firstName?: string;
+    public lastName?: string;
     
     constructor(
             id?: any,
-            login?: string,
+            firstName?: string,
+            lastName?: string,
     ) {
         this.id = id ? id : null;
-        this.login = login ? login : null;
+        this.firstName = firstName ? firstName : null;
+        this.lastName = lastName ? lastName : null;
     }
 }
