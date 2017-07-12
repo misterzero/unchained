@@ -18,9 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * REST controller for managing Poll.
@@ -94,23 +92,26 @@ public class PollResource {
      */
     @GetMapping("/polls")
     @Timed
-    public List<Poll> getAllPolls() {
-        List<Poll> pollList = new ArrayList<>();
+    public Map<String, List<Poll>> getAllPolls() {
+        Map<String, List<Poll>> pollMap = new HashMap<>();
+        List<Poll> activePollList = new ArrayList<>();
+        List<Poll> inactivePollList = new ArrayList<>();
         userService.getUserWithAuthoritiesByLogin(SecurityUtils.getCurrentUserLogin()).ifPresent(user -> {
-            log.debug("REST request to get all polls for user with ID {}", user.getId().toString());
             BlockchainUser blockchainUser = blockchainUserService.findOne(user.getId().toString());
             for (ActivePoll ap : blockchainUser.getActivePollsAsList()) {
                 Poll poll = new Poll();
                 poll.setName(ap.getName());
-                pollList.add(poll);
+                activePollList.add(poll);
             }
+            pollMap.put("active", activePollList);
             for (String ip : blockchainUser.getInactivePollsAsList()) {
                 Poll poll = new Poll();
                 poll.setName(ip);
-                pollList.add(poll);
+                inactivePollList.add(poll);
             }
+            pollMap.put("inactive", inactivePollList);
         });
-        return pollList;
+        return pollMap;
     }
 
     /**

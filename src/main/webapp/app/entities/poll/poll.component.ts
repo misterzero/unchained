@@ -30,7 +30,8 @@ export class PollComponent implements OnInit, OnDestroy {
         this.pollService.query().subscribe(
             (res: ResponseWrapper) => {
                 console.log(res.json);
-                this.activePolls = res.json;
+                this.activePolls = res.json.active;
+                this.inactivePolls = res.json.inactive;
             },
             (res: ResponseWrapper) => this.onError(res.json)
         );
