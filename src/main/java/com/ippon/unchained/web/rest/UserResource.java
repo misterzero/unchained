@@ -155,6 +155,12 @@ public class UserResource {
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/users");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
+    @GetMapping("/users/voters")
+    @Timed
+    public ResponseEntity<List<User>> getAllUserByLoginAndId(){
+    	final List<User> users = userService.getAllLoginAndId();
+    	return new ResponseEntity <List<User>> (users, HttpStatus.ACCEPTED);
+    }
 
     /**
      * @return a string list of the all of the roles
