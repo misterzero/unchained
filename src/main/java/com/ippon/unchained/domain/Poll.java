@@ -35,6 +35,8 @@ public class Poll implements Serializable {
     @Column(name = "expiration")
     private LocalDate expiration;
 
+    private String chainCodeName;
+
     private int status;
 
     // This variable is used for storage when creating a poll - see use in PollRepositoryImpl.java's save()
@@ -133,6 +135,14 @@ public class Poll implements Serializable {
         this.expiration = expiration;
     }
 
+    public String getChainCodeName() {
+        return chainCodeName;
+    }
+
+    public void setChainCodeName() {
+        this.chainCodeName = getId()+"_"+getName();
+    }
+
     public int getStatus() {
         return status;
     }
@@ -156,6 +166,7 @@ public class Poll implements Serializable {
 
     public Poll clone() {
         Poll p = new Poll(name,options,expiration,status,voters);
+        p.setChainCodeName();
         return p;
     }
 

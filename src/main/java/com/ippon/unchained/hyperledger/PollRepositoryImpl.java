@@ -163,9 +163,11 @@ public class PollRepositoryImpl implements PollRepository {
 //                    currentPoll = setupPoll(payload);
                     currentPoll.setOptions(optionList);
                 }
+                return currentPoll;
+
             }
 
-            return currentPoll;
+//            return currentPoll;
         } catch (Exception e) {
             Util.out("Caught exception while running query");
             e.printStackTrace();
@@ -310,7 +312,7 @@ public class PollRepositoryImpl implements PollRepository {
             // but .getValue() doesn't resolve when run against a Poll object, so it was changed to the line below.
             // It still likely does not complete as expected, but it passes a test for compiling this way!
             // TODO
-            transactionProposalRequest.setArgs(new String[] {"addNewPoll", poll.getName(), poll.toJSONString()});
+            transactionProposalRequest.setArgs(new String[] {"addNewPoll", poll.getChainCodeName(), poll.toJSONString()});
 
             Map<String, byte[]> tm2 = new HashMap<>();
             tm2.put("HyperLedgerFabric", "TransactionProposalRequest:JavaSDK".getBytes(UTF_8));
@@ -318,7 +320,7 @@ public class PollRepositoryImpl implements PollRepository {
             tm2.put("result", ":)".getBytes(UTF_8));  /// This should be returned see chaincode.
             transactionProposalRequest.setTransientMap(tm2);
 
-            Util.out("sending transactionProposal to all peers with arguments: \"addNewPoll\","+poll.getName());
+            Util.out("sending transactionProposal to all peers with arguments: \"addNewPoll\","+poll.getChainCodeName());
 
             Collection<ProposalResponse> transactionPropResp = chain.sendTransactionProposal(transactionProposalRequest, chain.getPeers());
             for (ProposalResponse response : transactionPropResp) {

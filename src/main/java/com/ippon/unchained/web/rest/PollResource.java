@@ -51,10 +51,10 @@ public class PollResource {
 //        return ResponseEntity.created(new URI("/api/polls/" + result.getName().toString()))
 //            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getName().toString()))
 //            .body(result);
-        String pollID = result.getId()+"_"+poll.getName();
-        log.debug("Poll URL: " + pollID);
-        return ResponseEntity.created(new URI("/api/polls/" + pollID))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, pollID))
+//        String pollID = result.getId()+"_"+poll.getName();
+        log.debug("Poll URL: " + poll.getChainCodeName());
+        return ResponseEntity.created(new URI("/api/polls/" + poll.getChainCodeName()))
+            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, poll.getChainCodeName()))
             .body(result);
     }
 
