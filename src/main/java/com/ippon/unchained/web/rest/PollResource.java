@@ -57,9 +57,14 @@ public class PollResource {
         if (poll.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new poll cannot already have an ID")).body(null);
         }
-        Poll result = pollService.save(poll);
-        return ResponseEntity.created(new URI("/api/polls/" + result.getName()))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getName().toString()))
+        Poll result = pollService.save(poll.clone());
+//        return ResponseEntity.created(new URI("/api/polls/" + result.getName().toString()))
+//            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getName().toString()))
+//            .body(result);
+//        String pollID = result.getId()+"_"+poll.getName();
+        log.debug("Poll URL: " + poll.getChainCodeName());
+        return ResponseEntity.created(new URI("/api/polls/" + poll.getChainCodeName()))
+            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, poll.getChainCodeName()))
             .body(result);
     }
 
@@ -100,13 +105,13 @@ public class PollResource {
             BlockchainUser blockchainUser = blockchainUserService.findOne(user.getId().toString());
             for (ActivePoll ap : blockchainUser.getActivePollsAsList()) {
                 Poll poll = new Poll();
-                poll.setName(ap.getName());
+                poll.setChainCodeName(ap.getName());
                 activePollList.add(poll);
             }
             pollMap.put("active", activePollList);
             for (String ip : blockchainUser.getInactivePollsAsList()) {
                 Poll poll = new Poll();
-                poll.setName(ip);
+                poll.setChainCodeName(ip);
                 inactivePollList.add(poll);
             }
             pollMap.put("inactive", inactivePollList);
@@ -114,17 +119,31 @@ public class PollResource {
         return pollMap;
     }
 
+//    /**
+//     * GET  /polls/:id : get the "id" poll.
+//     *
+//     * @param id the id of the poll to retrieve
+//     * @return the ResponseEntity with status 200 (OK) and with body the poll, or with status 404 (Not Found)
+//     */
+//    @GetMapping("/polls/{id}")
+//    @Timed
+//    public ResponseEntity<Poll> getPoll(@PathVariable Long id) {
+//        log.debug("REST request to get Poll : {}", id);
+//        Poll poll = pollService.findOne(id);
+//        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(poll));
+//    }
+
     /**
      * GET  /polls/:id : get the "id" poll.
      *
-     * @param id the id of the poll to retrieve
+     * @param name the name of the poll to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the poll, or with status 404 (Not Found)
      */
-    @GetMapping("/polls/{id}")
+    @GetMapping("/polls/{name}")
     @Timed
-    public ResponseEntity<Poll> getPoll(@PathVariable Long id) {
-        log.debug("REST request to get Poll : {}", id);
-        Poll poll = pollService.findOne(id);
+    public ResponseEntity<Poll> getPoll(@PathVariable String name) {
+        log.debug("REST request to get Poll : {}", name);
+        Poll poll = pollService.findOne(name);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(poll));
     }
 

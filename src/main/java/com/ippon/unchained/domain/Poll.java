@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A Poll.
@@ -18,6 +19,8 @@ import java.util.Objects;
 public class Poll implements Serializable {
 
     private static final long serialVersionUID = 1L;
+    private static final AtomicInteger nextId = new AtomicInteger(1);
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,10 +35,12 @@ public class Poll implements Serializable {
     @Column(name = "expiration")
     private LocalDate expiration;
 
+    private String chainCodeName;
+
     private int status;
 
     // This variable is used for storage when creating a poll - see use in PollRepositoryImpl.java's save()
-    // format: "anon@ymo.us,andrea@gmail.com,julian@funbrain.net,..." (CSV)
+    // format: "1,3,4,..." (CSV of User IDs)
     private String voters;
 
     public Poll(String name) {
@@ -43,6 +48,16 @@ public class Poll implements Serializable {
     }
 
     public Poll() {
+    }
+
+    public Poll(String name, String options, LocalDate expiration, int status, String voters) {
+        this.id = nextId.longValue();
+        this.name = name;
+        this.options = options;
+        this.expiration = expiration;
+        this.status = status;
+        this.voters = voters;
+        nextId.incrementAndGet();
     }
 
     public Long getId() {
@@ -124,6 +139,20 @@ public class Poll implements Serializable {
         this.expiration = expiration;
     }
 
+    public String getChainCodeName() {
+        return chainCodeName;
+    }
+
+    public void setChainCodeName() {
+        this.chainCodeName = getId()+"_"+getName();
+    }
+
+    public void setChainCodeName(String chainCodeName) {
+        this.chainCodeName = chainCodeName;
+        this.setId(Long.parseLong(chainCodeName.split("_",2)[0]));
+        this.setName(chainCodeName.split("_",2)[1]);
+    }
+
     public int getStatus() {
         return status;
     }
@@ -143,6 +172,12 @@ public class Poll implements Serializable {
 
     public String getVoters() {
         return this.voters;
+    }
+
+    public Poll clone() {
+        Poll p = new Poll(name,options,expiration,status,voters);
+        p.setChainCodeName();
+        return p;
     }
 
     @Override
@@ -171,6 +206,7 @@ public class Poll implements Serializable {
             "id=" + getId() +
             ", name='" + getName() + "'" +
             ", options='" + getOptions() + "'" +
+            ", voters='" + getVoters() + "'" +
             ", expiration='" + getExpiration() + "'" +
             "}";
     }

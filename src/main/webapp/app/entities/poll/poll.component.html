@@ -25,14 +25,14 @@
             </thead>
             <tbody>
             <tr *ngFor="let activePoll of activePolls ;trackBy: trackId">
-                <td><a [routerLink]="['../poll', activePoll.id ]">{{activePoll.id}}</a></td>
+                <td><a [routerLink]="['../poll', activePoll.chainCodeName ]">{{activePoll.id}}</a></td>
                 <td>{{activePoll.name}}</td>
                 <td>{{activePoll.options}}</td>
                 <td>{{activePoll.expiration | date:'mediumDate'}}</td>
                 <td class="text-right">
                     <div class="btn-group flex-btn-group-container">
                         <button type="submit"
-                                [routerLink]="['../poll', activePoll.id ]"
+                                [routerLink]="['../poll', activePoll.chainCodeName ]"
                                 class="btn btn-info btn-sm">
                             <span class="fa fa-eye"></span>
                             <span class="hidden-md-down" jhiTranslate="entity.action.view">View</span>
@@ -68,14 +68,14 @@
             </thead>
             <tbody>
             <tr *ngFor="let inactivePoll of inactivePolls ;trackBy: trackId">
-                <td><a [routerLink]="['../poll', inactivePoll.id ]">{{inactivePoll.id}}</a></td>
+                <td><a [routerLink]="['../poll', inactivePoll.chainCodeName ]">{{inactivePoll.id}}</a></td>
                 <td>{{inactivePoll.name}}</td>
                 <td>{{inactivePoll.options}}</td>
                 <td>{{inactivePoll.expiration | date:'mediumDate'}}</td>
                 <td class="text-right">
                     <div class="btn-group flex-btn-group-container">
                         <button type="submit"
-                                [routerLink]="['../poll', inactivePoll.id ]"
+                                [routerLink]="['../poll', inactivePoll.chainCodeName ]"
                                 class="btn btn-info btn-sm">
                             <span class="fa fa-eye"></span>
                             <span class="hidden-md-down" jhiTranslate="entity.action.view">View</span>
