@@ -7,6 +7,7 @@ import com.ippon.unchained.domain.Poll;
 import com.ippon.unchained.security.SecurityUtils;
 import com.ippon.unchained.service.BlockchainUserService;
 import com.ippon.unchained.service.PollService;
+import com.ippon.unchained.service.UserService;
 import com.ippon.unchained.web.rest.util.HeaderUtil;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
@@ -34,11 +35,14 @@ public class PollResource {
 
     private final PollService pollService;
 
+    private final UserService userService;
+
     private final BlockchainUserService blockchainUserService;
 
-    public PollResource(PollService pollService, BlockchainUserService blockchainUserService) {
+    public PollResource(PollService pollService, BlockchainUserService blockchainUserService, UserService userService) {
         this.pollService = pollService;
         this.blockchainUserService = blockchainUserService;
+        this.userService = userService;
     }
 
     /**
@@ -92,17 +96,20 @@ public class PollResource {
     @Timed
     public List<Poll> getAllPolls() {
         List<Poll> pollList = new ArrayList<>();
-        BlockchainUser blockchainUser = blockchainUserService.findOne(SecurityUtils.getCurrentUserId().toString());
-        for (ActivePoll ap : blockchainUser.getActivePollsAsList()) {
-            Poll poll = new Poll();
-            poll.setName(ap.getName());
-            pollList.add(poll);
-        }
-        for (String ip : blockchainUser.getInactivePollsAsList()) {
-            Poll poll = new Poll();
-            poll.setName(ip);
-            pollList.add(poll);
-        }
+        userService.getUserWithAuthoritiesByLogin(SecurityUtils.getCurrentUserLogin()).ifPresent(user -> {
+            log.debug("REST request to get all polls for user with ID {}", user.getId().toString());
+            BlockchainUser blockchainUser = blockchainUserService.findOne(user.getId().toString());
+            for (ActivePoll ap : blockchainUser.getActivePollsAsList()) {
+                Poll poll = new Poll();
+                poll.setName(ap.getName());
+                pollList.add(poll);
+            }
+            for (String ip : blockchainUser.getInactivePollsAsList()) {
+                Poll poll = new Poll();
+                poll.setName(ip);
+                pollList.add(poll);
+            }
+        });
         return pollList;
     }
 

@@ -23,10 +23,10 @@ export class PollDialogComponent implements OnInit {
     expirationDp: any;
     options: any[];
     voters: any[];
-	users: User[];
+    users: User[];
 
     constructor(
-    	private userService: UserService,
+        private userService: UserService,
         public activeModal: NgbActiveModal,
         private alertService: AlertService,
         private pollService: PollService,
@@ -40,7 +40,7 @@ export class PollDialogComponent implements OnInit {
         this.authorities = ['ROLE_USER', 'ROLE_ADMIN'];
         this.options = [{'id': 'option1', 'text': ''}];
         this.voters = [{'id': 'voter1', 'text': ''}];
-        this.loadAll()
+        this.loadAll();
     }
 
     clear() {
@@ -93,14 +93,14 @@ export class PollDialogComponent implements OnInit {
         result.subscribe((res: Poll) =>
             this.onSaveSuccess(res, isCreated), (res: Response) => this.onSaveError(res));
     }
-    
+
     loadAll() {
-    	this.userService.query().subscribe(
+        this.userService.query().subscribe(
             (res: ResponseWrapper) => this.onSuccess(res.json, res.headers),
             (res: ResponseWrapper) => this.onError(res.json)
         );
     }
-    
+
     private onSuccess(data, headers) {
         this.users = data;
     }

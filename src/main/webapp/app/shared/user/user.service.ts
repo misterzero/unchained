@@ -47,5 +47,4 @@ export class UserService {
         const jsonResponse = res.json();
         return new ResponseWrapper(res.headers, jsonResponse, res.status);
     }
-    
 }
