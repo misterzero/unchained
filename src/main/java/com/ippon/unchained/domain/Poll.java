@@ -40,8 +40,12 @@ public class Poll implements Serializable {
     private int status;
 
     // This variable is used for storage when creating a poll - see use in PollRepositoryImpl.java's save()
-    // format: "anon@ymo.us,andrea@gmail.com,julian@funbrain.net,..." (CSV)
+    // format: "1,3,4,..." (CSV of User IDs)
     private String voters;
+
+    public Poll(String name) {
+        this.name = name;
+    }
 
     public Poll() {
     }
@@ -141,6 +145,12 @@ public class Poll implements Serializable {
 
     public void setChainCodeName() {
         this.chainCodeName = getId()+"_"+getName();
+    }
+
+    public void setChainCodeName(String chainCodeName) {
+        this.chainCodeName = chainCodeName;
+        this.setId(Long.parseLong(chainCodeName.split("_",2)[0]));
+        this.setName(chainCodeName.split("_",2)[1]);
     }
 
     public int getStatus() {

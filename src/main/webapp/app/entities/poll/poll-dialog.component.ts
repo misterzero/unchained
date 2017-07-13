@@ -9,11 +9,13 @@ import { EventManager, AlertService } from 'ng-jhipster';
 import { Poll } from './poll.model';
 import { PollPopupService } from './poll-popup.service';
 import { PollService } from './poll.service';
+import { ITEMS_PER_PAGE, Principal, User, UserService, ResponseWrapper } from '../../shared';
 
 @Component({
     selector: 'jhi-poll-dialog',
     templateUrl: './poll-dialog.component.html'
 })
+
 export class PollDialogComponent implements OnInit {
 
     poll: Poll;
@@ -22,8 +24,10 @@ export class PollDialogComponent implements OnInit {
     expirationDp: any;
     options: any[];
     voters: any[];
+    users: Voter[];
 
     constructor(
+        private userService: UserService,
         public activeModal: NgbActiveModal,
         private alertService: AlertService,
         private pollService: PollService,
@@ -37,6 +41,7 @@ export class PollDialogComponent implements OnInit {
         this.authorities = ['ROLE_USER', 'ROLE_ADMIN'];
         this.options = [{'id': 'option1', 'text': ''}];
         this.voters = [{'id': 'voter1', 'text': ''}];
+        this.loadAll();
     }
 
     clear() {
@@ -95,6 +100,19 @@ export class PollDialogComponent implements OnInit {
             this.onSaveSuccess(res, isCreated), (res: Response) => this.onSaveError(res));
     }
 
+    loadAll() {
+        this.userService.queryByNameAndId().subscribe(
+            (res: ResponseWrapper) => this.onSuccess(res.json, res.headers),
+            (res: ResponseWrapper) => this.onError(res.json)
+        );
+    }
+
+    private onSuccess(data, headers) {
+        console.log(data[0]);
+        this.users = data;
+        console.log(this.users);
+    }
+
     private onSaveSuccess(result: Poll, isCreated: boolean) {
         this.alertService.success(
             isCreated ? 'unchainedApp.poll.created'
@@ -149,5 +167,21 @@ export class PollPopupComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.routeSub.unsubscribe();
+    }
+}
+
+export class Voter {
+    public id?: any;
+    public firstName?: string;
+    public lastName?: string;
+
+    constructor(
+            id?: any,
+            firstName?: string,
+            lastName?: string,
+    ) {
+        this.id = id ? id : null;
+        this.firstName = firstName ? firstName : null;
+        this.lastName = lastName ? lastName : null;
     }
 }

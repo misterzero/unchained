@@ -12,40 +12,83 @@
     <div class="row">
     </div>
     <br/>
-    <div class="table-responsive" *ngIf="polls">
+    <div class="table-responsive" *ngIf="activePolls">
         <table class="table table-striped">
             <thead>
             <tr>
-            <th><span jhiTranslate="global.field.id">ID</span></th>
-            <th><span jhiTranslate="unchainedApp.poll.name">Name</span></th>
-            <th><span jhiTranslate="unchainedApp.poll.options">Options</span></th>
-            <th><span jhiTranslate="unchainedApp.poll.expiration">Expiration</span></th>
-            <th></th>
+                <th><span jhiTranslate="global.field.id">ID</span></th>
+                <th><span jhiTranslate="unchainedApp.poll.name">Name</span></th>
+                <th><span jhiTranslate="unchainedApp.poll.options">Options</span></th>
+                <th><span jhiTranslate="unchainedApp.poll.expiration">Expiration</span></th>
+                <th></th>
             </tr>
             </thead>
             <tbody>
-            <tr *ngFor="let poll of polls ;trackBy: trackId">
-                <td><a [routerLink]="['../poll', poll.id ]">{{poll.id}}</a></td>
-                <td>{{poll.name}}</td>
-                <td>{{poll.options}}</td>
-                <td>{{poll.expiration | date:'mediumDate'}}</td>
+            <tr *ngFor="let activePoll of activePolls ;trackBy: trackId">
+                <td><a [routerLink]="['../poll', activePoll.chainCodeName ]">{{activePoll.id}}</a></td>
+                <td>{{activePoll.name}}</td>
+                <td>{{activePoll.options}}</td>
+                <td>{{activePoll.expiration | date:'mediumDate'}}</td>
                 <td class="text-right">
                     <div class="btn-group flex-btn-group-container">
                         <button type="submit"
-                                [routerLink]="['../poll', poll.id ]"
+                                [routerLink]="['../poll', activePoll.chainCodeName ]"
                                 class="btn btn-info btn-sm">
                             <span class="fa fa-eye"></span>
                             <span class="hidden-md-down" jhiTranslate="entity.action.view">View</span>
                         </button>
                         <button type="submit"
-                                [routerLink]="['/', { outlets: { popup: 'poll/'+ poll.id + '/edit'} }]"
+                                [routerLink]="['/', { outlets: { popup: 'poll/'+ activePoll.id + '/edit'} }]"
                                 replaceUrl="true"
                                 class="btn btn-primary btn-sm">
                             <span class="fa fa-pencil"></span>
                             <span class="hidden-md-down" jhiTranslate="entity.action.edit">Edit</span>
                         </button>
                         <button type="submit"
-                                [routerLink]="['/', { outlets: { popup: 'poll/'+ poll.id + '/delete'} }]"
+                                [routerLink]="['/', { outlets: { popup: 'poll/'+ activePoll.id + '/delete'} }]"
+                                replaceUrl="true"
+                                class="btn btn-danger btn-sm">
+                            <span class="fa fa-remove"></span>
+                            <span class="hidden-md-down" jhiTranslate="entity.action.delete">Delete</span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th><span jhiTranslate="global.field.id">ID</span></th>
+                <th><span jhiTranslate="unchainedApp.poll.name">Name</span></th>
+                <th><span jhiTranslate="unchainedApp.poll.options">Options</span></th>
+                <th><span jhiTranslate="unchainedApp.poll.expiration">Expiration</span></th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let inactivePoll of inactivePolls ;trackBy: trackId">
+                <td><a [routerLink]="['../poll', inactivePoll.chainCodeName ]">{{inactivePoll.id}}</a></td>
+                <td>{{inactivePoll.name}}</td>
+                <td>{{inactivePoll.options}}</td>
+                <td>{{inactivePoll.expiration | date:'mediumDate'}}</td>
+                <td class="text-right">
+                    <div class="btn-group flex-btn-group-container">
+                        <button type="submit"
+                                [routerLink]="['../poll', inactivePoll.chainCodeName ]"
+                                class="btn btn-info btn-sm">
+                            <span class="fa fa-eye"></span>
+                            <span class="hidden-md-down" jhiTranslate="entity.action.view">View</span>
+                        </button>
+                        <button type="submit"
+                                [routerLink]="['/', { outlets: { popup: 'poll/'+ inactivePoll.id + '/edit'} }]"
+                                replaceUrl="true"
+                                class="btn btn-primary btn-sm">
+                            <span class="fa fa-pencil"></span>
+                            <span class="hidden-md-down" jhiTranslate="entity.action.edit">Edit</span>
+                        </button>
+                        <button type="submit"
+                                [routerLink]="['/', { outlets: { popup: 'poll/'+ inactivePoll.id + '/delete'} }]"
                                 replaceUrl="true"
                                 class="btn btn-danger btn-sm">
                             <span class="fa fa-remove"></span>

@@ -127,11 +127,9 @@ public class PollRepositoryImpl implements PollRepository {
             queryByChaincodeRequest.setFcn("invoke");
             queryByChaincodeRequest.setChaincodeID(chainCodeID);
             Map<String, byte[]> tm2 = new HashMap<>();
-            ObjectMapper mapper = new ObjectMapper();
 
             // First set up an empty currentPoll to return
             Poll currentPoll = new Poll();
-//            currentPoll.setId(id);
             currentPoll.setName(name);
             currentPoll.setExpiration(LocalDate.now());
             currentPoll.setOptions(new ArrayList());
@@ -285,7 +283,7 @@ public class PollRepositoryImpl implements PollRepository {
 	        tm2.put("result", ":)".getBytes(UTF_8));  /// This should be returned see chaincode.
 	        transactionProposalRequest.setTransientMap(tm2);
 
-	        Util.out("sending transactionProposal to all peers with arguments: \"addNewPoll\","+poll.getName());
+	        Util.out("sending transactionProposal to all peers with arguments: \"addNewPoll\","+poll.getChainCodeName());
 
 	        Collection<ProposalResponse> transactionPropResp = chain.sendTransactionProposal(transactionProposalRequest, chain.getPeers());
 	        for (ProposalResponse response : transactionPropResp) {
@@ -478,6 +476,16 @@ public class PollRepositoryImpl implements PollRepository {
 
     @Override
     public List<Poll> findAll() {
+        return null;
+    }
+
+    public List<Poll> findAll(String user) {
+        // This is the function called from /poll
+
+        // Get the current user's ID
+        // BlockchainUser currentUser = (mapper convert) blockchainUserRepositoryImpl.findOne(currentID);
+        // return active polls
+        // TODO: run multiple queries for active vs inactive? return all in one? change structure being returned??
         return null;
     }
 

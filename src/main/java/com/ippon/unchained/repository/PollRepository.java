@@ -12,7 +12,6 @@ import org.springframework.data.jpa.repository.*;
 @SuppressWarnings("unused")
 @Repository
 public interface PollRepository extends JpaRepository<Poll,Long> {
-
     Poll findOne(String name);
 
     void vote(String ballot);

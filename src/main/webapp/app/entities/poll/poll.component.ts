@@ -13,7 +13,8 @@ import { PaginationConfig } from '../../blocks/config/uib-pagination.config';
     templateUrl: './poll.component.html'
 })
 export class PollComponent implements OnInit, OnDestroy {
-polls: Poll[];
+    activePolls: Poll[];
+    inactivePolls: Poll[];
     currentAccount: any;
     eventSubscriber: Subscription;
 
@@ -28,7 +29,9 @@ polls: Poll[];
     loadAll() {
         this.pollService.query().subscribe(
             (res: ResponseWrapper) => {
-                this.polls = res.json;
+                console.log(res.json);
+                this.activePolls = res.json.active;
+                this.inactivePolls = res.json.inactive;
             },
             (res: ResponseWrapper) => this.onError(res.json)
         );

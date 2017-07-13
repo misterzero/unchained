@@ -32,6 +32,11 @@ export class UserService {
             .map((res: Response) => this.convertResponse(res));
     }
 
+    queryByNameAndId(): Observable<ResponseWrapper> {
+        return this.http.get('api/users/voters')
+            .map((res: Response) => this.convertResponse(res));
+    }
+
     delete(login: string): Observable<Response> {
         return this.http.delete(`${this.resourceUrl}/${login}`);
     }

@@ -94,7 +94,10 @@ export class PollDetailComponent implements OnInit, OnDestroy {
     load(id) {
         this.pollService.find(id).subscribe((poll) => {
             this.poll = poll;
-            this.showOptions();
+            let array = JSON.parse(poll.options);
+            console.log('POLL LOG');
+            this.options=array;
+            console.log(poll)
         });
     }
     previousState() {
@@ -119,12 +122,4 @@ export class PollDetailComponent implements OnInit, OnDestroy {
             (response) => this.vote(ballot)
         );
     }
-}
-
-interface Options {
-    string: Option;
-}
-interface Option {
-    name: string;
-    count: number;
 }

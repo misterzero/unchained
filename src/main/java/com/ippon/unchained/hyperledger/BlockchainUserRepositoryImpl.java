@@ -39,10 +39,10 @@ public class BlockchainUserRepositoryImpl implements BlockchainUserRepository {
     @Autowired
     private Collection<SampleOrg> testSampleOrgs;
 
-    
+
     public BlockchainUser findOne(String name) {
         // Payload for a BlockchainUser should be in the format...
-        // {"id":1, "active":[{"id":"1","votes":"1"},{"id":"2","votes":"1"}], "history":[{"id":"3"},{"id":"4"}]}
+        // {"active":[{"name":"1","token":"1"},{"name":"2","token":"1"}], "inactive":["3","4"]}
     	try {
     		ObjectMapper mapper = new ObjectMapper();
             Util.out("Now query chain code for the value of b.");
@@ -53,12 +53,12 @@ public class BlockchainUserRepositoryImpl implements BlockchainUserRepository {
             int value = 0;
             Long id = (long) 1;
             String payload = null;
-            
+
             Map<String, byte[]> tm2 = new HashMap<>();
             tm2.put("HyperLedgerFabric", "QueryByChaincodeRequest:JavaSDK".getBytes(UTF_8));
             tm2.put("method", "QueryByChaincodeRequest".getBytes(UTF_8));
             queryByChaincodeRequest.setTransientMap(tm2);
-            
+
             Collection<ProposalResponse> queryProposals = chain.queryByChaincode(queryByChaincodeRequest, chain.getPeers());
             for (ProposalResponse proposalResponse : queryProposals) {
                 if (!proposalResponse.isVerified() || proposalResponse.getStatus() != ProposalResponse.Status.SUCCESS) {
@@ -76,7 +76,7 @@ public class BlockchainUserRepositoryImpl implements BlockchainUserRepository {
             currentBlockchainUser.setId(id);
             currentBlockchainUser.setName(name);
             currentBlockchainUser = mapper.readValue(payload, BlockchainUser.class);
-            
+
             return currentBlockchainUser;
         } catch (Exception e) {
             Util.out("Caught exception while running query");
