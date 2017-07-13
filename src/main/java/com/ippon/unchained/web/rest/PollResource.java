@@ -62,7 +62,7 @@ public class PollResource {
 //            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getName().toString()))
 //            .body(result);
 //        String pollID = result.getId()+"_"+poll.getName();
-        log.debug("Poll URL: " + poll.getChainCodeName());
+        log.debug("Poll URL: %s", poll.getChainCodeName());
         return ResponseEntity.created(new URI("/api/polls/" + poll.getChainCodeName()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, poll.getChainCodeName()))
             .body(result);
