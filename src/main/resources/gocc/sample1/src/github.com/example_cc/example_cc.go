@@ -600,7 +600,7 @@ func (t *SimpleChaincode) addNewPoll(stub shim.ChaincodeStubInterface, args []st
 	var poll Poll
 	var pollAsJsonByteArray []byte
     var pollAsJsonString string
-	var pollExists bool
+	var ownerExists, pollExists bool
 	var err error
 	var owner string
 
@@ -617,12 +617,12 @@ func (t *SimpleChaincode) addNewPoll(stub shim.ChaincodeStubInterface, args []st
         return shim.Error(err.Error())
     }
     if ownerExists==false {
-        return shim.Error("No user with id:" + key)
+        return shim.Error("No user with id:" + owner)
     }
 
 	poll, err = createNewPoll(s)
 	if err != nil {
-		return shim.Error("Expecting integer value for user holding")
+		return shim.Error("error during the createNewPoll function")
 	}
 
 	pollAsJsonByteArray, err = getPollAsJsonByteArray(poll)

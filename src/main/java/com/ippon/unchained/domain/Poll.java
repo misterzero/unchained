@@ -52,13 +52,14 @@ public class Poll implements Serializable {
     public Poll() {
     }
 
-    public Poll(String name, String options, LocalDate expiration, int status, String voters) {
+    public Poll(String name, String options, LocalDate expiration, int status, String voters,String owner) {
         this.id = nextId.longValue();
         this.name = name;
         this.options = options;
         this.expiration = expiration;
         this.status = status;
         this.voters = voters;
+        this.owner= owner;
         nextId.incrementAndGet();
     }
 
@@ -186,7 +187,7 @@ public class Poll implements Serializable {
     }
 
     public Poll clone() {
-        Poll p = new Poll(name,options,expiration,status,voters);
+        Poll p = new Poll(name,options,expiration,status,voters,owner);
         p.setChainCodeName();
         return p;
     }
@@ -219,6 +220,7 @@ public class Poll implements Serializable {
             ", options='" + getOptions() + "'" +
             ", voters='" + getVoters() + "'" +
             ", expiration='" + getExpiration() + "'" +
+            ", owner='" + getOwner() + "'" +
             "}";
     }
 
@@ -226,6 +228,7 @@ public class Poll implements Serializable {
         return "{" +
             "\"options\":" + getOptions() +
             ",\"status\":" + getStatus() +
-            "}";
+            ",\"owner\":\"" + getOwner() +
+            "\"}";
     }
 }
