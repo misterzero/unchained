@@ -125,11 +125,9 @@ public class PollRepositoryImpl implements PollRepository {
             queryByChaincodeRequest.setFcn("invoke");
             queryByChaincodeRequest.setChaincodeID(chainCodeID);
             Map<String, byte[]> tm2 = new HashMap<>();
-            ObjectMapper mapper = new ObjectMapper();
 
             // First set up an empty currentPoll to return
             Poll currentPoll = new Poll();
-//            currentPoll.setId(id);
             currentPoll.setName(name);
             currentPoll.setExpiration(LocalDate.now());
             currentPoll.setOptions(new ArrayList());

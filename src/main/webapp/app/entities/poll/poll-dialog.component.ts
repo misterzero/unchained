@@ -24,7 +24,7 @@ export class PollDialogComponent implements OnInit {
     expirationDp: any;
     options: any[];
     voters: any[];
-	users: Voter[];
+    users: Voter[];
 
     constructor(
         private userService: UserService,
@@ -101,17 +101,16 @@ export class PollDialogComponent implements OnInit {
     }
 
     loadAll() {
-
-    	this.userService.queryByNameAndId().subscribe(
+        this.userService.queryByNameAndId().subscribe(
             (res: ResponseWrapper) => this.onSuccess(res.json, res.headers),
             (res: ResponseWrapper) => this.onError(res.json)
         );
     }
-    
+
     private onSuccess(data, headers) {
-    	console.log(data[0])
-        this.users=data 
-        console.log(this.users)
+        console.log(data[0]);
+        this.users = data;
+        console.log(this.users);
     }
 
     private onSaveSuccess(result: Poll, isCreated: boolean) {
@@ -171,11 +170,11 @@ export class PollPopupComponent implements OnInit, OnDestroy {
     }
 }
 
-export class Voter{
-	public id?: any;
-	public firstName?: string;
+export class Voter {
+    public id?: any;
+    public firstName?: string;
     public lastName?: string;
-    
+
     constructor(
             id?: any,
             firstName?: string,

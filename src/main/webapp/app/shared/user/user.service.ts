@@ -31,7 +31,7 @@ export class UserService {
         return this.http.get(this.resourceUrl, options)
             .map((res: Response) => this.convertResponse(res));
     }
-    
+
     queryByNameAndId(): Observable<ResponseWrapper> {
         return this.http.get('api/users/voters')
             .map((res: Response) => this.convertResponse(res));
