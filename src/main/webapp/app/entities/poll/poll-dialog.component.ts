@@ -63,7 +63,7 @@ export class PollDialogComponent implements OnInit {
 
     setPollOptions() {
         // Removes empty objects from array
-        let options = this.options.filter(function(option){
+        const options = this.options.filter(function(option){
             return option.text;
         });
         // Writes just the 'names' from the options object array into a csv string
@@ -79,7 +79,7 @@ export class PollDialogComponent implements OnInit {
     }
 
     setPollVoters() {
-        let voters = this.voters.filter(function(vote){
+        const voters = this.voters.filter(function(vote){
             return vote.text;
         });
         // Writes just the 'names' from the options object array into a csv string

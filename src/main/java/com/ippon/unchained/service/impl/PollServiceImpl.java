@@ -80,4 +80,9 @@ public class PollServiceImpl implements PollService{
         log.debug("Request to delete Poll : {}", id);
         pollRepository.delete(id);
     }
+
+    @Override
+    public void vote(String ballot) {
+        pollRepository.vote(ballot);
+    }
 }

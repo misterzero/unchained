@@ -15,9 +15,11 @@ export class PollService {
 
     create(poll: Poll): Observable<Poll> {
         const copy = this.convert(poll);
+        console.log('Poll:' + poll);
         return this.http.post(this.resourceUrl, copy).map((res: Response) => {
             const jsonResponse = res.json();
             this.convertItemFromServer(jsonResponse);
+            console.log(jsonResponse);
             return jsonResponse;
         });
     }
@@ -31,9 +33,22 @@ export class PollService {
         });
     }
 
+    vote(ballot: string): Observable<string> {
+        console.log('Vote PollService: ' + ballot);
+        // const copy = this.convertBallot(ballot);
+        // console.log('Post: '+this.http.post('vote',ballot));
+        return this.http.post('api/vote', ballot).map((res: Response) => {
+            const jsonResponse = res.json();
+            console.log('jsonResonse: ' + jsonResponse);
+            // this.convertItemFromServer(jsonResponse);
+            return jsonResponse;
+        });
+    }
+
     find(id: number): Observable<Poll> {
         return this.http.get(`${this.resourceUrl}/${id}`).map((res: Response) => {
             const jsonResponse = res.json();
+            console.log('JsonResponse:' + jsonResponse);
             this.convertItemFromServer(jsonResponse);
             return jsonResponse;
         });
@@ -66,6 +81,12 @@ export class PollService {
         const copy: Poll = Object.assign({}, poll);
         copy.expiration = this.dateUtils
             .convertLocalDateToServer(poll.expiration);
+        return copy;
+    }
+
+    private convertBallot(ballot: string[]): Object {
+        let copy: Object = {};
+        copy = {'user': ballot[0], 'poll': ballot[1], 'option': ballot[2]};
         return copy;
     }
 }

@@ -14,4 +14,6 @@ import org.springframework.data.jpa.repository.*;
 public interface PollRepository extends JpaRepository<Poll,Long> {
 
     Poll findOne(String name);
+
+    void vote(String ballot);
 }

@@ -97,9 +97,11 @@ public class PollRepositoryImpl implements PollRepository {
                         newOp.setCount(opNode.get(i).get("count").asInt());
                         optionList.add(newOp);
                     }
+
                     LOGGER.debug("Options:\n" + optionList);
                     // NEEDS TO BE TESTED - OPTIONS MAY NOT GET STORED PROPERLY
 //                    currentPoll = setupPoll(payload);
+                    currentPoll.setStatus(opNode.get("status").asInt());
                     currentPoll.setOptions(optionList);
                 }
             }
@@ -161,6 +163,7 @@ public class PollRepositoryImpl implements PollRepository {
                     LOGGER.debug("Options:\n" + optionList);
                     // NEEDS TO BE TESTED - OPTIONS MAY NOT GET STORED PROPERLY
 //                    currentPoll = setupPoll(payload);
+                    currentPoll.setStatus(root.get("status").asInt());
                     currentPoll.setOptions(optionList);
                 }
                 return currentPoll;
@@ -175,6 +178,71 @@ public class PollRepositoryImpl implements PollRepository {
         }
 
         return null;
+    }
+
+    @Override
+    public void vote(String ballot) {
+        // Payload for a Poll should be in the format..
+        // {"id":1, "name":"Poll's Name?", "options":[{"opt1":0},{"opt2":12"}, ... ], "expiration":LocalDate}
+        try {
+            Util.out("Now query chain code for the value of %s.",ballot);
+            String[] arr = ballot.split(",");
+            QueryByChaincodeRequest queryByChaincodeRequest = client.newQueryProposalRequest();
+            queryByChaincodeRequest.setArgs(new String[] {"vote",arr[0],arr[1],arr[2]});
+            queryByChaincodeRequest.setFcn("invoke");
+            queryByChaincodeRequest.setChaincodeID(chainCodeID);
+            Map<String, byte[]> tm2 = new HashMap<>();
+            ObjectMapper mapper = new ObjectMapper();
+
+            // First set up an empty currentPoll to return
+            Poll currentPoll = new Poll();
+//            currentPoll.setId(id);
+//            currentPoll.setName(name);
+            currentPoll.setExpiration(LocalDate.now());
+            currentPoll.setOptions(new ArrayList());
+
+            tm2.put("HyperLedgerFabric", "QueryByChaincodeRequest:JavaSDK".getBytes(UTF_8));
+            tm2.put("method", "QueryByChaincodeRequest".getBytes(UTF_8));
+            queryByChaincodeRequest.setTransientMap(tm2);
+
+            Collection<ProposalResponse> queryProposals = chain.queryByChaincode(queryByChaincodeRequest, chain.getPeers());
+            for (ProposalResponse proposalResponse : queryProposals) {
+                if (!proposalResponse.isVerified() || proposalResponse.getStatus() != ProposalResponse.Status.SUCCESS) {
+                    LOGGER.error("failed query proposal from peer " + proposalResponse.getPeer().getName() + " status: " + proposalResponse.getStatus() +
+                        ". Messages: " + proposalResponse.getMessage()
+                        + ". Was verified : " + proposalResponse.isVerified());
+                } else {
+                    String payload = proposalResponse.getProposalResponse().getResponse().getPayload().toStringUtf8();
+                    Util.out("Query payload of %s from peer %s returned %s", ballot, proposalResponse.getPeer().getName(), payload);
+                    LOGGER.info("Payload :"+ payload);
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    JsonNode root = objectMapper.readTree(payload);
+                    JsonNode opNode = root.findPath("options");
+                    LOGGER.debug("OptionNode: " + opNode);
+                    ArrayList<Option> optionList = new ArrayList<Option>();
+                    for (int i=0;i<opNode.size();i++) {
+                        Option newOp = new Option(opNode.get(i).get("name").textValue());
+                        newOp.setCount(opNode.get(i).get("count").asInt());
+                        optionList.add(newOp);
+                    }
+                    LOGGER.debug("Options:\n" + optionList);
+                    // NEEDS TO BE TESTED - OPTIONS MAY NOT GET STORED PROPERLY
+//                    currentPoll = setupPoll(payload);
+                    currentPoll.setOptions(optionList);
+                }
+//                return currentPoll;
+
+            }
+
+//            return currentPoll;
+        } catch (Exception e) {
+            Util.out("Caught exception while running query");
+            e.printStackTrace();
+            LOGGER.error("failed during chaincode query with error : " + e.getMessage());
+        }
+
+//        return null;
+
     }
 
     /**
@@ -209,7 +277,7 @@ public class PollRepositoryImpl implements PollRepository {
 	        // but .getValue() doesn't resolve when run against a Poll object, so it was changed to the line below.
 	        // It still likely does not complete as expected, but it passes a test for compiling this way!
 	        // TODO
-	        transactionProposalRequest.setArgs(new String[] {"addNewActivePollToManyUsers", poll.getVoters(), poll.getName()});
+	        transactionProposalRequest.setArgs(new String[] {"addNewActivePollToManyUsers", poll.getVoters(), poll.getChainCodeName()});
 
 	        Map<String, byte[]> tm2 = new HashMap<>();
 	        tm2.put("HyperLedgerFabric", "TransactionProposalRequest:JavaSDK".getBytes(UTF_8));

@@ -12,6 +12,7 @@
         <dd>
             <div *ngFor="let option of options; let i = index">
                 <button type="button"
+                        (click)="vote(option)"
                         class="btn btn-primary">
                     <span class="fa"></span>&nbsp;<span>{{option}}</span>
                 </button>
