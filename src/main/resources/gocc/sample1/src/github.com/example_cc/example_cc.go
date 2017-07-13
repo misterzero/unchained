@@ -49,6 +49,7 @@ type User struct{
 type Poll struct{
 	Options 		[]Option 		`json:"options"`
 	Status 			int 			`json:"status"`
+    Owner           string          `json:"owner"`
 }
 
 // Init initializes the chaincode state
@@ -351,7 +352,7 @@ func (t *SimpleChaincode) newQuery(stub shim.ChaincodeStubInterface, args []stri
                 pollAsStringIfStatusOne = pollAsStringIfStatusOne + ",{\"name\":\"" +poll.Options[i].Name+"\",\"count\":0}"
             }
         }
-        pollAsStringIfStatusOne = pollAsStringIfStatusOne + "],\"status\":1}"
+        pollAsStringIfStatusOne = pollAsStringIfStatusOne + "],\"status\":1,\"owner\":\""+poll.Owner+"\"}"
         pollAsByteIfStatusOne = []byte(pollAsStringIfStatusOne)
         fmt.Printf("Query Response:%s\n", pollAsStringIfStatusOne)
         return shim.Success(pollAsByteIfStatusOne)
@@ -601,13 +602,23 @@ func (t *SimpleChaincode) addNewPoll(stub shim.ChaincodeStubInterface, args []st
     var pollAsJsonString string
 	var pollExists bool
 	var err error
+	var owner string
 
-	if len(args) < 3 {
+	if len(args) < 4 {
 		return shim.Error("put operation must include one arguments, a key")
 	}
 
 	key := args[1]
 	s := args[2]
+	owner = args[3]
+
+	ownerExists, err = isExistingUser(stub, owner)
+    if err != nil {
+        return shim.Error(err.Error())
+    }
+    if ownerExists==false {
+        return shim.Error("No user with id:" + key)
+    }
 
 	poll, err = createNewPoll(s)
 	if err != nil {

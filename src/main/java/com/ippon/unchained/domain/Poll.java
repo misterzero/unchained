@@ -36,6 +36,8 @@ public class Poll implements Serializable {
     private LocalDate expiration;
 
     private String chainCodeName;
+    
+    private String owner;
 
     private int status;
 
@@ -80,6 +82,15 @@ public class Poll implements Serializable {
     public void setName(String name) {
         this.name = name;
     }
+    
+    public String getOwner() {
+        return owner;
+    }
+    
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
 
     public List<Option> getOptionsAsList() {
         ObjectMapper mapper = new ObjectMapper();
