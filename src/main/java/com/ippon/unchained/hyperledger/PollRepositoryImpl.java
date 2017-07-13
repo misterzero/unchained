@@ -161,6 +161,7 @@ public class PollRepositoryImpl implements PollRepository {
                     LOGGER.debug("Options:\n" + optionList);
                     // NEEDS TO BE TESTED - OPTIONS MAY NOT GET STORED PROPERLY
 //                    currentPoll = setupPoll(payload);
+                    currentPoll.setStatus(root.get("status").asInt());
                     currentPoll.setOptions(optionList);
                 }
                 return currentPoll;
