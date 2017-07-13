@@ -763,7 +763,7 @@ func (t *SimpleChaincode) changeStatusToZero(stub shim.ChaincodeStubInterface, a
 	}
 	
 	pollKey = args[1]
-	currentUser = args[1]
+	currentUser = args[2]
 
     ownerAllowed, err = isOwnerAllowed(stub,pollKey,currentUser)
     if ownerAllowed == false {
