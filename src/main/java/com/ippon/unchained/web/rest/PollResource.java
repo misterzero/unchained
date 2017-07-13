@@ -144,6 +144,7 @@ public class PollResource {
     public ResponseEntity<Poll> getPoll(@PathVariable String name) {
         log.debug("REST request to get Poll : {}", name);
         Poll poll = pollService.findOne(name);
+        poll.setChainCodeName(poll.getName());
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(poll));
     }
 

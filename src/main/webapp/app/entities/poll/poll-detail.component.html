@@ -58,4 +58,11 @@
             class="btn btn-primary">
         <span class="fa fa-pencil"></span>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
     </button>
+
+    <button type="button"
+            [routerLink]="['/', { outlets: { popup: 'poll/'+ poll.chainCodeName + '/close'} }]"
+            replaceUrl="true"
+            class="btn btn-danger">
+        <span class="fa fa-remove"></span>&nbsp;<span jhiTranslate="entity.action.close"> Close</span>
+    </button>
 </div>
