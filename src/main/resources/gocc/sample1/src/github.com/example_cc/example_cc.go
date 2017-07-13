@@ -754,14 +754,22 @@ func (t *SimpleChaincode) changeStatusToZero(stub shim.ChaincodeStubInterface, a
 	var pollKey, pollAsJsonString string
 	var pollAsBytes []byte
 	var poll Poll
-	var statusOne bool
+	var statusOne, ownerAllowed  bool
 	var err error
+    var currentUser string
 
-	if len(args) != 2 {
+	if len(args) != 3 {
 		return shim.Error("put operation must include three arguments, a userKey, a pollKey and an option ")
 	}
 	
 	pollKey = args[1]
+	currentUser = args[1]
+
+    ownerAllowed, err = isOwnerAllowed(stub,pollKey,currentUser)
+    if ownerAllowed == false {
+        return shim.Error("the user: "+ currentUser + " is not the owner of the poll")
+    }
+
 	pollAsBytes, err = stub.GetState(pollKey)
     poll, err = getPollFromJsonByteArray(pollAsBytes)
 
@@ -917,6 +925,17 @@ func isStatusOne(stub shim.ChaincodeStubInterface, poll Poll) (bool,error){
     }
 
     return result, err
+}
+
+func isOwnerAllowed(stub shim.ChaincodeStubInterface, pollKey string, currentUser string) (bool,error){
+    var err error
+    result := false
+    pollAsBytes, err := stub.GetState(pollKey)
+    poll, err := getPollFromJsonByteArray(pollAsBytes)
+    if poll.Owner ==currentUser{
+        result = true
+    }
+    return result,err
 }
 
 func getUserAsJsonByteArray(user User) ([]byte, error){
