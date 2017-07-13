@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import java.net.URLEncoder;
 import java.util.*;
 
 /**
@@ -58,13 +59,14 @@ public class PollResource {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new poll cannot already have an ID")).body(null);
         }
         Poll result = pollService.save(poll.clone());
-//        return ResponseEntity.created(new URI("/api/polls/" + result.getName().toString()))
-//            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getName().toString()))
-//            .body(result);
-//        String pollID = result.getId()+"_"+poll.getName();
-        log.debug("Poll URL: " + poll.getChainCodeName());
-        return ResponseEntity.created(new URI("/api/polls/" + poll.getChainCodeName()))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, poll.getChainCodeName()))
+        try {
+            result.setChainCodeName(URLEncoder.encode(result.getChainCodeName(), "UTF-8"));
+        } catch (Exception e) {
+            log.error("ERROR when encoding result.ChainCodeName : %s", e);
+        }
+        log.debug("Poll URL: " + result.getChainCodeName());
+        return ResponseEntity.created(new URI("/api/polls/" + result.getChainCodeName()))
+            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getChainCodeName()))
             .body(result);
     }
 
