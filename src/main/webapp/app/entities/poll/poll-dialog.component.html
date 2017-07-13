@@ -39,7 +39,7 @@
 			<button type="button" class="btn btn-default" (click)="addNewVoter()"
 				*ngIf="last">Add another voter</button>
 			<select name="voterName_{{i}}" class="form-control" [(ngModel)]="voter.text">
-        		<option *ngFor="let user of users" [ngValue]="user.id">{{user.login}}</option>
+        		<option *ngFor="let user of users" [ngValue]="user[0]">{{user[1]+" "+user[2]}}</option>
       		</select>
 		</div>
 		<div class="modal-footer">
@@ -54,4 +54,5 @@
 					jhiTranslate="entity.action.save">Save</span>
 			</button>
 		</div>
+	</div>
 </form>
