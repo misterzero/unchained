@@ -159,6 +159,7 @@ public class PollRepositoryImpl implements PollRepository {
                     LOGGER.debug("Options:\n" + optionList);
                     // NEEDS TO BE TESTED - OPTIONS MAY NOT GET STORED PROPERLY
 //                    currentPoll = setupPoll(payload);
+                    currentPoll.setOwner(root.get("owner").toString());
                     currentPoll.setStatus(root.get("status").asInt());
                     currentPoll.setOptions(optionList);
                 }
@@ -300,7 +301,7 @@ public class PollRepositoryImpl implements PollRepository {
 
             LOGGER.debug("Poll JSON: \n" + poll.toString());
             client.setUserContext(TestConfigHelper.getSampleOrgByName("peerOrg1", testSampleOrgs).getPeerAdmin());
-
+            LOGGER.debug(poll.getOwner());
             ///////////////
             /// Send transaction proposal to all peers
             TransactionProposalRequest transactionProposalRequest = client.newTransactionProposalRequest();
@@ -311,8 +312,9 @@ public class PollRepositoryImpl implements PollRepository {
             // but .getValue() doesn't resolve when run against a Poll object, so it was changed to the line below.
             // It still likely does not complete as expected, but it passes a test for compiling this way!
             // TODO
-            transactionProposalRequest.setArgs(new String[] {"addNewPoll", poll.getChainCodeName(), poll.toJSONString()});
-
+            LOGGER.debug(poll.toJSONString());
+            transactionProposalRequest.setArgs(new String[] {"addNewPoll", poll.getChainCodeName(), poll.toJSONString(), poll.getOwner()});
+            
             Map<String, byte[]> tm2 = new HashMap<>();
             tm2.put("HyperLedgerFabric", "TransactionProposalRequest:JavaSDK".getBytes(UTF_8));
             tm2.put("method", "TransactionProposalRequest".getBytes(UTF_8));
@@ -397,6 +399,9 @@ public class PollRepositoryImpl implements PollRepository {
         accounts.add(arg0);
 //        save(accounts);
         List<S> saved = new ArrayList<S>();
+        LOGGER.debug("HELLO");
+        LOGGER.debug(accounts.get(0));
+        LOGGER.debug(accounts.get(0).getName());
         saved = save(accounts);
         LOGGER.debug("Account 1 id: " + saved.get(0).getName());
         return saved.get(0);
