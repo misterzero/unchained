@@ -217,7 +217,7 @@ public class PollRepositoryImpl implements PollRepository {
 	        tm2.put("result", ":)".getBytes(UTF_8));  /// This should be returned see chaincode.
 	        transactionProposalRequest.setTransientMap(tm2);
 
-	        Util.out("sending transactionProposal to all peers with arguments: \"addNewPoll\","+poll.getChainCodeName());
+	        Util.out("sending transactionProposal to all peers with arguments: \"addNewPoll\",%s",poll.getChainCodeName());
 
 	        Collection<ProposalResponse> transactionPropResp = chain.sendTransactionProposal(transactionProposalRequest, chain.getPeers());
 	        for (ProposalResponse response : transactionPropResp) {
@@ -321,7 +321,7 @@ public class PollRepositoryImpl implements PollRepository {
             tm2.put("result", ":)".getBytes(UTF_8));  /// This should be returned see chaincode.
             transactionProposalRequest.setTransientMap(tm2);
 
-            Util.out("sending transactionProposal to all peers with arguments: \"addNewPoll\","+poll.getChainCodeName());
+            Util.out("sending transactionProposal to all peers with arguments: \"addNewPoll\",%s",poll.getChainCodeName());
 
             Collection<ProposalResponse> transactionPropResp = chain.sendTransactionProposal(transactionProposalRequest, chain.getPeers());
             for (ProposalResponse response : transactionPropResp) {
