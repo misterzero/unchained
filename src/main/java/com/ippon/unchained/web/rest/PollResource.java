@@ -9,12 +9,14 @@ import com.ippon.unchained.service.BlockchainUserService;
 import com.ippon.unchained.service.PollService;
 import com.ippon.unchained.service.UserService;
 import com.ippon.unchained.web.rest.util.HeaderUtil;
+import com.oracle.tools.packager.Log;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.Array;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -97,8 +99,13 @@ public class PollResource {
     @Timed
     public ResponseEntity<Void> votePoll(@RequestBody String ballot) {
         log.debug("Rest request to cast ballot : {}", ballot);
-        pollService.vote(ballot);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, ballot.toString())).build();
+        ArrayList<String> ballotList = new ArrayList<String>(Arrays.asList(ballot.split(",")));
+        userService.getUserWithAuthoritiesByLogin(SecurityUtils.getCurrentUserLogin()).ifPresent(user -> {
+            ballotList.set(0,user.getId().toString());
+        });
+        log.debug("ballotList: " + ballotList);
+        pollService.vote(ballotList.toString());
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, ballotList.toString())).build();
 
     }
 
@@ -157,6 +164,7 @@ public class PollResource {
         log.debug("REST request to get Poll : {}", name);
         Poll poll = pollService.findOne(name);
         poll.setChainCodeName(poll.getName());
+        log.debug("Poll after findOne(): \n" + poll);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(poll));
     }
 

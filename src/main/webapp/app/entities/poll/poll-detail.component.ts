@@ -17,7 +17,7 @@ export class PollDetailComponent implements OnInit, OnDestroy {
     poll: Poll;
     private subscription: Subscription;
     private eventSubscriber: Subscription;
-    options: Option[];
+    options: any[];
 
     constructor(
         private eventManager: EventManager,
@@ -37,7 +37,7 @@ export class PollDetailComponent implements OnInit, OnDestroy {
     showOptions() {
         console.log('showOptions');
         console.log(this.poll.options);
-        const json: Options = JSON.parse(this.poll.options);
+        const json = JSON.parse(this.poll.options);
         console.log('Length: ' + Object.keys(json).length);
         for (let i = 0; i < Object.keys(json).length; i++) {
             console.log(json[i].name);
@@ -46,26 +46,11 @@ export class PollDetailComponent implements OnInit, OnDestroy {
     }
 
     vote(option) {
-        const ballot: string[] = ['"user"', '"' + this.poll.name + '"', '"' + option + '""'];
+        const ballot: string[] = ['4', this.poll.name, option];
         console.log('Vote for poll: ' + this.poll.name);
-        // ballot.push('user');
-        // ballot.push(this.poll.name);
-        // ballot.push(option);
         console.log(ballot.join());
         this.subscribeToVoteResponse(this.pollService.vote(ballot.join()), true);
-        // this.pollService.vote(ballot.join());
-        // this.subscription = this.route.params.subscribe((params) => {
-        //     this.pollService.vote(ballot);
-        // });
-        // this.registerChangeInPollVote(ballot);
-        // this.pollService.vote(ballot);
     }
-
-    // private subscribeToVoteResponse(cast: Observable<string>) {
-    //   cast.subscribe((res: string) => {
-    //     this.pollService.vote(res);
-    //   });
-    // }
 
     private subscribeToVoteResponse(result: Observable<string>, isCreated: boolean) {
         result.subscribe((res: Poll) =>
@@ -82,20 +67,23 @@ export class PollDetailComponent implements OnInit, OnDestroy {
         try {
             error.json();
         } catch (exception) {
-            error.message = error.text();
+          console.log('onSaveError');
+            // error.message = error.;
         }
         this.onError(error);
     }
 
     private onError(error) {
-      console.log('Error on save');
+      console.log('onError');
     }
 
     load(id) {
         this.pollService.find(id).subscribe((poll) => {
             this.poll = poll;
             const array = JSON.parse(poll.options);
+            console.log('POLL LOG');
             this.options = array;
+            console.log(poll);
         });
     }
     previousState() {

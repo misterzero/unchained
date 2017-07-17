@@ -22,7 +22,7 @@
 	            		<tbody>
 		            		<tr>
 			            		<td>
-					                <button *ngIf="poll.status==1" type="button" class="btn btn-primary">
+					                <button *ngIf="poll.status==1" (click)="vote(option.name)" type="button" class="btn btn-primary">
 					                    <span class="fa"></span>&nbsp;<span>{{option.name}}</span>
 					                </button>
 					                <div *ngIf="poll.status==0" class="btn btn-primary">
