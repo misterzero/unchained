@@ -47,7 +47,7 @@ public class BlockchainUserRepositoryImpl implements BlockchainUserRepository {
     		ObjectMapper mapper = new ObjectMapper();
             Util.out("Now query chain code for the value of b.");
             QueryByChaincodeRequest queryByChaincodeRequest = client.newQueryProposalRequest();
-            queryByChaincodeRequest.setArgs(new String[] {"query",name});
+            queryByChaincodeRequest.setArgs(new String[] {"newQuery",name});
             queryByChaincodeRequest.setFcn("invoke");
             queryByChaincodeRequest.setChaincodeID(chainCodeID);
             int value = 0;

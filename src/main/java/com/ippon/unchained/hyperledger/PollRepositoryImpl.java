@@ -184,7 +184,7 @@ public class PollRepositoryImpl implements PollRepository {
         // {"id":1, "name":"Poll's Name?", "options":[{"opt1":0},{"opt2":12"}, ... ], "expiration":LocalDate}
         try {
             Util.out("Now query chain code for the value of %s.",ballot);
-            String[] arr = ballot.split(",");
+            String[] arr = ballot.replace("[","").replace("]","").replace(" ","").split(",");
             QueryByChaincodeRequest queryByChaincodeRequest = client.newQueryProposalRequest();
             queryByChaincodeRequest.setArgs(new String[] {"vote",arr[0],arr[1],arr[2]});
             queryByChaincodeRequest.setFcn("invoke");
@@ -213,20 +213,20 @@ public class PollRepositoryImpl implements PollRepository {
                     String payload = proposalResponse.getProposalResponse().getResponse().getPayload().toStringUtf8();
                     Util.out("Query payload of %s from peer %s returned %s", ballot, proposalResponse.getPeer().getName(), payload);
                     LOGGER.info("Payload :"+ payload);
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    JsonNode root = objectMapper.readTree(payload);
-                    JsonNode opNode = root.findPath("options");
-                    LOGGER.debug("OptionNode: " + opNode);
-                    ArrayList<Option> optionList = new ArrayList<Option>();
-                    for (int i=0;i<opNode.size();i++) {
-                        Option newOp = new Option(opNode.get(i).get("name").textValue());
-                        newOp.setCount(opNode.get(i).get("count").asInt());
-                        optionList.add(newOp);
-                    }
-                    LOGGER.debug("Options:\n" + optionList);
+//                    ObjectMapper objectMapper = new ObjectMapper();
+//                    JsonNode root = objectMapper.readTree(payload);
+//                    JsonNode opNode = root.findPath("options");
+//                    LOGGER.debug("OptionNode: " + opNode);
+//                    ArrayList<Option> optionList = new ArrayList<Option>();
+//                    for (int i=0;i<opNode.size();i++) {
+//                        Option newOp = new Option(opNode.get(i).get("name").textValue());
+//                        newOp.setCount(opNode.get(i).get("count").asInt());
+//                        optionList.add(newOp);
+//                    }
+//                    LOGGER.debug("Options:\n" + optionList);
                     // NEEDS TO BE TESTED - OPTIONS MAY NOT GET STORED PROPERLY
 //                    currentPoll = setupPoll(payload);
-                    currentPoll.setOptions(optionList);
+//                    currentPoll.setOptions(optionList);
                 }
 //                return currentPoll;
 
