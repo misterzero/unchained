@@ -9,7 +9,6 @@ import com.ippon.unchained.service.BlockchainUserService;
 import com.ippon.unchained.service.PollService;
 import com.ippon.unchained.service.UserService;
 import com.ippon.unchained.web.rest.util.HeaderUtil;
-import com.oracle.tools.packager.Log;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -190,7 +189,7 @@ public class PollResource {
      */
     @DeleteMapping("/polls/{id}")
     @Timed
-    public ResponseEntity<Void> deletePoll(@PathVariable Long id) {
+    public ResponseEntity<Void> deletePoll(@PathVariable String id) {
         log.debug("REST request to close Poll : {}", id);
         userService.getUserWithAuthoritiesByLogin(SecurityUtils.getCurrentUserLogin()).ifPresent(user -> {
             pollService.close(id, user.getId());

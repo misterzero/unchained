@@ -51,7 +51,7 @@ public interface PollService {
      *
      *  @param id the id of the entity
      */
-    void close(Long id, Long userId);
+    void close(String id, Long userId);
 
     /**
      * Cast vote for 'opt' by 'user' in 'poll'

@@ -514,11 +514,11 @@ public class PollRepositoryImpl implements PollRepository {
         return 0;
     }
 
-    public void close(Long id, Long userId) {
+    public void close(String id, Long userId) {
         try {
             Util.out("Now set status of poll %s to 0.", id);
             QueryByChaincodeRequest queryByChaincodeRequest = client.newQueryProposalRequest();
-            queryByChaincodeRequest.setArgs(new String[] {"changeStatusToZero", id.toString(), userId.toString()});
+            queryByChaincodeRequest.setArgs(new String[] {"changeStatusToZero", id, userId.toString()});
             queryByChaincodeRequest.setFcn("invoke");
             queryByChaincodeRequest.setChaincodeID(chainCodeID);
             Map<String, byte[]> tm2 = new HashMap<>();

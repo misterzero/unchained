@@ -91,7 +91,7 @@ export class PollDetailComponent implements OnInit, OnDestroy {
     }
 
     close() {
-        this.pollService.delete(this.poll.id).subscribe();
+        this.pollService.delete(this.poll.id + '_' + this.poll.name).subscribe();
     }
 
     ngOnDestroy() {

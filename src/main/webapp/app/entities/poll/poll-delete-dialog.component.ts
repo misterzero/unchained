@@ -28,7 +28,7 @@ export class PollDeleteDialogComponent {
         this.activeModal.dismiss('cancel');
     }
 
-    confirmDelete(id: number) {
+    confirmDelete(id: string) {
         this.pollService.delete(id).subscribe((response) => {
             this.eventManager.broadcast({
                 name: 'pollListModification',

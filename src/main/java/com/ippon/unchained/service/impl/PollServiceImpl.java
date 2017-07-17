@@ -86,7 +86,7 @@ public class PollServiceImpl implements PollService{
      *
      *  @param id the id of the entity
      */
-    public void close(Long id, Long userId) {
+    public void close(String id, Long userId) {
         log.debug("Request to close Poll : {}", id);
         pollRepository.close(id, userId);
     }
