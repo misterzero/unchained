@@ -93,6 +93,15 @@ public class PollResource {
             .body(result);
     }
 
+    @PostMapping("/vote")
+    @Timed
+    public ResponseEntity<Void> votePoll(@RequestBody String ballot) {
+        log.debug("Rest request to cast ballot : {}", ballot);
+        pollService.vote(ballot);
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, ballot.toString())).build();
+
+    }
+
     /**
      * GET  /polls : get all the polls.
      *

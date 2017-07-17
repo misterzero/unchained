@@ -90,4 +90,9 @@ public class PollServiceImpl implements PollService{
         log.debug("Request to close Poll : {}", id);
         pollRepository.close(id, userId);
     }
+
+    @Override
+    public void vote(String ballot) {
+        pollRepository.vote(ballot);
+    }
 }

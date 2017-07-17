@@ -52,4 +52,10 @@ public interface PollService {
      *  @param id the id of the entity
      */
     void close(Long id, Long userId);
+
+    /**
+     * Cast vote for 'opt' by 'user' in 'poll'
+     * @param ballot = ["user", "1_testPoll", "opt1"]
+     */
+    void vote(String ballot);
 }
