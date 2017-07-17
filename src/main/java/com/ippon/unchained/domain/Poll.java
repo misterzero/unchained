@@ -36,6 +36,8 @@ public class Poll implements Serializable {
     private LocalDate expiration;
 
     private String chainCodeName;
+    
+    private String owner;
 
     private int status;
 
@@ -50,13 +52,14 @@ public class Poll implements Serializable {
     public Poll() {
     }
 
-    public Poll(String name, String options, LocalDate expiration, int status, String voters) {
+    public Poll(String name, String options, LocalDate expiration, int status, String voters,String owner) {
         this.id = nextId.longValue();
         this.name = name;
         this.options = options;
         this.expiration = expiration;
         this.status = status;
         this.voters = voters;
+        this.owner= owner;
         nextId.incrementAndGet();
     }
 
@@ -80,6 +83,15 @@ public class Poll implements Serializable {
     public void setName(String name) {
         this.name = name;
     }
+    
+    public String getOwner() {
+        return owner;
+    }
+    
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
 
     public List<Option> getOptionsAsList() {
         ObjectMapper mapper = new ObjectMapper();
@@ -175,7 +187,7 @@ public class Poll implements Serializable {
     }
 
     public Poll clone() {
-        Poll p = new Poll(name,options,expiration,status,voters);
+        Poll p = new Poll(name,options,expiration,status,voters,owner);
         p.setChainCodeName();
         return p;
     }
@@ -208,6 +220,7 @@ public class Poll implements Serializable {
             ", options='" + getOptions() + "'" +
             ", voters='" + getVoters() + "'" +
             ", expiration='" + getExpiration() + "'" +
+            ", owner='" + getOwner() + "'" +
             "}";
     }
 
@@ -215,6 +228,7 @@ public class Poll implements Serializable {
         return "{" +
             "\"options\":" + getOptions() +
             ",\"status\":" + getStatus() +
-            "}";
+            ",\"owner\":\"" + getOwner() +
+            "\"}";
     }
 }

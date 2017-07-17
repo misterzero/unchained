@@ -49,6 +49,7 @@ type User struct{
 type Poll struct{
 	Options 		[]Option 		`json:"options"`
 	Status 			int 			`json:"status"`
+    Owner           string          `json:"owner"`
 }
 
 // Init initializes the chaincode state
@@ -351,7 +352,7 @@ func (t *SimpleChaincode) newQuery(stub shim.ChaincodeStubInterface, args []stri
                 pollAsStringIfStatusOne = pollAsStringIfStatusOne + ",{\"name\":\"" +poll.Options[i].Name+"\",\"count\":0}"
             }
         }
-        pollAsStringIfStatusOne = pollAsStringIfStatusOne + "],\"status\":1}"
+        pollAsStringIfStatusOne = pollAsStringIfStatusOne + "],\"status\":1,\"owner\":\""+poll.Owner+"\"}"
         pollAsByteIfStatusOne = []byte(pollAsStringIfStatusOne)
         fmt.Printf("Query Response:%s\n", pollAsStringIfStatusOne)
         return shim.Success(pollAsByteIfStatusOne)
@@ -599,19 +600,29 @@ func (t *SimpleChaincode) addNewPoll(stub shim.ChaincodeStubInterface, args []st
 	var poll Poll
 	var pollAsJsonByteArray []byte
     var pollAsJsonString string
-	var pollExists bool
+	var ownerExists, pollExists bool
 	var err error
+	var owner string
 
-	if len(args) < 3 {
+	if len(args) < 4 {
 		return shim.Error("put operation must include one arguments, a key")
 	}
 
 	key := args[1]
 	s := args[2]
+	owner = args[3]
+
+	ownerExists, err = isExistingUser(stub, owner)
+    if err != nil {
+        return shim.Error(err.Error())
+    }
+    if ownerExists==false {
+        return shim.Error("No user with id:" + owner)
+    }
 
 	poll, err = createNewPoll(s)
 	if err != nil {
-		return shim.Error("Expecting integer value for user holding")
+		return shim.Error("error during the createNewPoll function")
 	}
 
 	pollAsJsonByteArray, err = getPollAsJsonByteArray(poll)
@@ -743,14 +754,22 @@ func (t *SimpleChaincode) changeStatusToZero(stub shim.ChaincodeStubInterface, a
 	var pollKey, pollAsJsonString string
 	var pollAsBytes []byte
 	var poll Poll
-	var statusOne bool
+	var statusOne, ownerAllowed  bool
 	var err error
+    var currentUser string
 
-	if len(args) != 2 {
+	if len(args) != 3 {
 		return shim.Error("put operation must include three arguments, a userKey, a pollKey and an option ")
 	}
 	
 	pollKey = args[1]
+	currentUser = args[2]
+
+    ownerAllowed, err = isOwnerAllowed(stub,pollKey,currentUser)
+    if ownerAllowed == false {
+        return shim.Error("the user: "+ currentUser + " is not the owner of the poll")
+    }
+
 	pollAsBytes, err = stub.GetState(pollKey)
     poll, err = getPollFromJsonByteArray(pollAsBytes)
 
@@ -906,6 +925,17 @@ func isStatusOne(stub shim.ChaincodeStubInterface, poll Poll) (bool,error){
     }
 
     return result, err
+}
+
+func isOwnerAllowed(stub shim.ChaincodeStubInterface, pollKey string, currentUser string) (bool,error){
+    var err error
+    result := false
+    pollAsBytes, err := stub.GetState(pollKey)
+    poll, err := getPollFromJsonByteArray(pollAsBytes)
+    if poll.Owner ==currentUser{
+        result = true
+    }
+    return result,err
 }
 
 func getUserAsJsonByteArray(user User) ([]byte, error){

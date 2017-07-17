@@ -59,12 +59,15 @@ public class PollResource {
         if (poll.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new poll cannot already have an ID")).body(null);
         }
+        userService.getUserWithAuthoritiesByLogin(SecurityUtils.getCurrentUserLogin()).ifPresent(user -> {            
+        	poll.setOwner(user.getId().toString());
+        	});
         Poll result = pollService.save(poll.clone());
 //        return ResponseEntity.created(new URI("/api/polls/" + result.getName().toString()))
 //            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getName().toString()))
 //            .body(result);
 //        String pollID = result.getId()+"_"+poll.getName();
-        log.debug("Poll URL: " + poll.getChainCodeName());
+        log.debug("Poll URL: %s", poll.getChainCodeName());
         return ResponseEntity.created(new URI("/api/polls/" + poll.getChainCodeName()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, poll.getChainCodeName()))
             .body(result);

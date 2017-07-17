@@ -81,10 +81,9 @@ export class PollDetailComponent implements OnInit, OnDestroy {
         this.pollService.find(id).subscribe((poll) => {
             this.poll = poll;
             const array = JSON.parse(poll.options);
-            console.log('POLL LOG');
             this.options = array;
-            console.log(poll);
         });
+
     }
     previousState() {
         window.history.back();
