@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.lang.reflect.Array;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -100,11 +99,11 @@ public class PollResource {
         log.debug("Rest request to cast ballot : {}", ballot);
         ArrayList<String> ballotList = new ArrayList<String>(Arrays.asList(ballot.split(",")));
         userService.getUserWithAuthoritiesByLogin(SecurityUtils.getCurrentUserLogin()).ifPresent(user -> {
-            ballotList.set(0,user.getId().toString());
+            ballotList.add(0,user.getId().toString());
         });
         log.debug("ballotList: " + ballotList);
         pollService.vote(ballotList.toString());
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, ballotList.toString())).build();
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, ballotList.get(1))).build();
 
     }
 
