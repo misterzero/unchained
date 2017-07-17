@@ -34,16 +34,16 @@ export class PollDetailComponent implements OnInit, OnDestroy {
         this.registerChangeInPolls();
     }
 
-    showOptions() {
-        console.log('showOptions');
-        console.log(this.poll.options);
-        const json = JSON.parse(this.poll.options);
-        console.log('Length: ' + Object.keys(json).length);
-        for (let i = 0; i < Object.keys(json).length; i++) {
-            console.log(json[i].name);
-            this.options.push(json[i].name);
-        }
-    }
+    // showOptions() {
+    //     console.log('showOptions');
+    //     console.log(this.poll.options);
+    //     const json = JSON.parse(this.poll.options);
+    //     console.log('Length: ' + Object.keys(json).length);
+    //     for (let i = 0; i < Object.keys(json).length; i++) {
+    //         console.log(json[i].name);
+    //         this.options.push(json[i].name);
+    //     }
+    // }
 
     vote(option) {
         const ballot: string[] = ['4', this.poll.name, option];
@@ -59,8 +59,6 @@ export class PollDetailComponent implements OnInit, OnDestroy {
 
     private onSaveSuccess(result: Poll, isCreated: boolean) {
         console.log('Save success');
-
-        this.eventManager.broadcast({ name: 'pollListModification', content: 'OK'});
     }
 
     private onSaveError(error) {
@@ -98,13 +96,6 @@ export class PollDetailComponent implements OnInit, OnDestroy {
         this.eventSubscriber = this.eventManager.subscribe(
             'pollListModification',
             (response) => this.load(this.poll.id)
-        );
-    }
-
-    registerChangeInPollVote(ballot) {
-        this.eventSubscriber = this.eventManager.subscribe(
-            'pollVoteModification',
-            (response) => this.vote(ballot)
         );
     }
 }

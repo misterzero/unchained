@@ -9,14 +9,12 @@ import com.ippon.unchained.service.BlockchainUserService;
 import com.ippon.unchained.service.PollService;
 import com.ippon.unchained.service.UserService;
 import com.ippon.unchained.web.rest.util.HeaderUtil;
-import com.oracle.tools.packager.Log;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.lang.reflect.Array;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -59,7 +57,7 @@ public class PollResource {
         if (poll.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new poll cannot already have an ID")).body(null);
         }
-        userService.getUserWithAuthoritiesByLogin(SecurityUtils.getCurrentUserLogin()).ifPresent(user -> {            
+        userService.getUserWithAuthoritiesByLogin(SecurityUtils.getCurrentUserLogin()).ifPresent(user -> {
         	poll.setOwner(user.getId().toString());
         	});
         Poll result = pollService.save(poll.clone());
@@ -105,7 +103,7 @@ public class PollResource {
         });
         log.debug("ballotList: " + ballotList);
         pollService.vote(ballotList.toString());
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, ballotList.toString())).build();
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, ballotList.get(1))).build();
 
     }
 

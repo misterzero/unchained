@@ -33,14 +33,14 @@ export class PollService {
         });
     }
 
-    vote(ballot: string): Observable<string> {
+    vote(ballot: string): Observable<Poll> {
         console.log('Vote PollService: ' + ballot);
         // const copy = this.convertBallot(ballot);
         // console.log('Post: '+this.http.post('vote',ballot));
         return this.http.post('api/vote', ballot).map((res: Response) => {
             const jsonResponse = res.json();
+            this.convertItemFromServer(jsonResponse);
             console.log('jsonResonse: ' + jsonResponse);
-            // this.convertItemFromServer(jsonResponse);
             return jsonResponse;
         });
     }
