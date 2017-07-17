@@ -314,7 +314,7 @@ public class PollRepositoryImpl implements PollRepository {
             // TODO
             LOGGER.debug(poll.toJSONString());
             transactionProposalRequest.setArgs(new String[] {"addNewPoll", poll.getChainCodeName(), poll.toJSONString(), poll.getOwner()});
-            
+
             Map<String, byte[]> tm2 = new HashMap<>();
             tm2.put("HyperLedgerFabric", "TransactionProposalRequest:JavaSDK".getBytes(UTF_8));
             tm2.put("method", "TransactionProposalRequest".getBytes(UTF_8));
@@ -445,6 +445,42 @@ public class PollRepositoryImpl implements PollRepository {
     @Override
     public long count() {
         return 0;
+    }
+
+    public void close(Long id, Long userId) {
+        try {
+            Util.out("Now set status of poll %s to 0.", id);
+            QueryByChaincodeRequest queryByChaincodeRequest = client.newQueryProposalRequest();
+            queryByChaincodeRequest.setArgs(new String[] {"changeStatusToZero", id.toString(), userId.toString()});
+            queryByChaincodeRequest.setFcn("invoke");
+            queryByChaincodeRequest.setChaincodeID(chainCodeID);
+            Map<String, byte[]> tm2 = new HashMap<>();
+
+            tm2.put("HyperLedgerFabric", "QueryByChaincodeRequest:JavaSDK".getBytes(UTF_8));
+            tm2.put("method", "QueryByChaincodeRequest".getBytes(UTF_8));
+            queryByChaincodeRequest.setTransientMap(tm2);
+
+            Collection<ProposalResponse> queryProposals = chain.queryByChaincode(queryByChaincodeRequest, chain.getPeers());
+            for (ProposalResponse proposalResponse : queryProposals) {
+                if (!proposalResponse.isVerified() || proposalResponse.getStatus() != ProposalResponse.Status.SUCCESS) {
+                    LOGGER.error("failed query proposal from peer " + proposalResponse.getPeer().getName() + " status: " + proposalResponse.getStatus() +
+                        ". Messages: " + proposalResponse.getMessage()
+                        + ". Was verified : " + proposalResponse.isVerified());
+                } else {
+                    String payload = proposalResponse.getProposalResponse().getResponse().getPayload().toStringUtf8();
+                    Util.out("Query payload of %s from peer %s returned %s", id, proposalResponse.getPeer().getName(), payload);
+                    LOGGER.info("Payload :"+ payload);
+                }
+            }
+
+            return;
+        } catch (Exception e) {
+            Util.out("Caught exception while closing poll.");
+            e.printStackTrace();
+            LOGGER.error("failed during chaincode query with error : " + e.getMessage());
+        }
+
+        return;
     }
 
     @Override

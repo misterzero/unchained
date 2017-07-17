@@ -60,8 +60,7 @@
     </button>
 
     <button type="button"
-            [routerLink]="['/', { outlets: { popup: 'poll/'+ poll.chainCodeName + '/close'} }]"
-            replaceUrl="true"
+            (click)="close()"
             class="btn btn-danger">
         <span class="fa fa-remove"></span>&nbsp;<span jhiTranslate="entity.action.close"> Close</span>
     </button>

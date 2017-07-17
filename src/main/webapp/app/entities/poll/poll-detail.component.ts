@@ -43,6 +43,10 @@ export class PollDetailComponent implements OnInit, OnDestroy {
         window.history.back();
     }
 
+    close() {
+        this.pollService.delete(this.poll.id).subscribe();
+    }
+
     ngOnDestroy() {
         this.subscription.unsubscribe();
         this.eventManager.destroy(this.eventSubscriber);

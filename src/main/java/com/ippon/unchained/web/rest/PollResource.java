@@ -57,9 +57,9 @@ public class PollResource {
         if (poll.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new poll cannot already have an ID")).body(null);
         }
-        userService.getUserWithAuthoritiesByLogin(SecurityUtils.getCurrentUserLogin()).ifPresent(user -> {            
+        userService.getUserWithAuthoritiesByLogin(SecurityUtils.getCurrentUserLogin()).ifPresent(user -> {
         	poll.setOwner(user.getId().toString());
-        	});
+        });
         Poll result = pollService.save(poll.clone());
 //        return ResponseEntity.created(new URI("/api/polls/" + result.getName().toString()))
 //            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getName().toString()))
@@ -151,17 +151,33 @@ public class PollResource {
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(poll));
     }
 
+//    /**
+//     * DELETE  /polls/:id : delete the "id" poll.
+//     *
+//     * @param id the id of the poll to delete
+//     * @return the ResponseEntity with status 200 (OK)
+//     */
+//    @DeleteMapping("/polls/{id}")
+//    @Timed
+//    public ResponseEntity<Void> deletePoll(@PathVariable Long id) {
+//        log.debug("REST request to delete Poll : {}", id);
+//        pollService.delete(id);
+//        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
+//    }
+
     /**
-     * DELETE  /polls/:id : delete the "id" poll.
+     * DELETE  /polls/:id : close the "id" poll.
      *
-     * @param id the id of the poll to delete
+     * @param id the id of the poll to close
      * @return the ResponseEntity with status 200 (OK)
      */
     @DeleteMapping("/polls/{id}")
     @Timed
     public ResponseEntity<Void> deletePoll(@PathVariable Long id) {
-        log.debug("REST request to delete Poll : {}", id);
-        pollService.delete(id);
+        log.debug("REST request to close Poll : {}", id);
+        userService.getUserWithAuthoritiesByLogin(SecurityUtils.getCurrentUserLogin()).ifPresent(user -> {
+            pollService.close(id, user.getId());
+        });
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
     }
 }

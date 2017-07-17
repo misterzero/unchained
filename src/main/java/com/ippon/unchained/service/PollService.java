@@ -45,4 +45,11 @@ public interface PollService {
      *  @param id the id of the entity
      */
     void delete(Long id);
+
+    /**
+     *  Close the "id" poll.
+     *
+     *  @param id the id of the entity
+     */
+    void close(Long id, Long userId);
 }
