@@ -115,6 +115,7 @@ public class PollRepositoryImpl implements PollRepository {
 
     @Override
     public Poll findOne(String name) {
+        // NOTE: String name being handed as a parameter should be "ID_NAME" AKA ChainCodeName, not "NAME" (i.e. 1_Poll vs Poll)
         // Payload for a Poll should be in the format..
         // {"id":1, "name":"Poll's Name?", "options":[{"opt1":0},{"opt2":12"}, ... ], "expiration":LocalDate}
         try {
@@ -127,7 +128,7 @@ public class PollRepositoryImpl implements PollRepository {
 
             // First set up an empty currentPoll to return
             Poll currentPoll = new Poll();
-            currentPoll.setName(name);
+            currentPoll.setChainCodeName(name);
             currentPoll.setExpiration(LocalDate.now());
             currentPoll.setOptions(new ArrayList());
 
