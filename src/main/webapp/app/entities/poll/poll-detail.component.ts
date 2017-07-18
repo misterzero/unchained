@@ -50,6 +50,8 @@ export class PollDetailComponent implements OnInit, OnDestroy {
         console.log('Vote for poll: ' + this.poll.name);
         console.log(ballot.join());
         this.subscribeToVoteResponse(this.pollService.vote(ballot.join()), true);
+        window.history.back();
+        window.location.reload();
     }
 
     private subscribeToVoteResponse(result: Observable<string>, isCreated: boolean) {
@@ -89,6 +91,7 @@ export class PollDetailComponent implements OnInit, OnDestroy {
 
     close() {
         this.pollService.delete(this.poll.id + '_' + this.poll.name).subscribe();
+        window.history.back();
     }
 
     ngOnDestroy() {
