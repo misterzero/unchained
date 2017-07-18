@@ -19,6 +19,7 @@ export class PollDetailComponent implements OnInit, OnDestroy {
     user: BlockchainUser;
     private subscription: Subscription;
     private eventSubscriber: Subscription;
+    isVoting: Boolean;
     options: any[];
 
     constructor(
@@ -30,28 +31,24 @@ export class PollDetailComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.options = [];
+        this.isVoting = false;
         this.subscription = this.route.params.subscribe((params) => {
             this.load(params['id']);
         });
         this.registerChangeInPolls();
     }
 
-    // showOptions() {
-    //     console.log('showOptions');
-    //     console.log(this.poll.options);
-    //     const json = JSON.parse(this.poll.options);
-    //     console.log('Length: ' + Object.keys(json).length);
-    //     for (let i = 0; i < Object.keys(json).length; i++) {
-    //         console.log(json[i].name);
-    //         this.options.push(json[i].name);
-    //     }
-    // }
-
     vote(option) {
+<<<<<<< HEAD
+=======
+        this.isVoting = true;
+>>>>>>> dev
         const ballot: string[] = [this.poll.id + '_' + this.poll.name, option];
         console.log('Vote for poll: ' + this.poll.name);
         console.log(ballot.join());
         this.subscribeToVoteResponse(this.pollService.vote(ballot.join()), true);
+        window.history.back();
+        window.location.reload();
     }
 
     private subscribeToVoteResponse(result: Observable<string>, isCreated: boolean) {
@@ -61,6 +58,8 @@ export class PollDetailComponent implements OnInit, OnDestroy {
 
     private onSaveSuccess(result: Poll, isCreated: boolean) {
         console.log('Save success');
+        this.isVoting = false;
+        this.eventManager.broadcast({ name: 'pollListModification', content: 'OK'});
     }
 
     private onSaveError(error) {
@@ -71,6 +70,7 @@ export class PollDetailComponent implements OnInit, OnDestroy {
             // error.message = error.;
         }
         this.onError(error);
+        this.isVoting = false;
     }
 
     private onError(error) {
@@ -92,6 +92,7 @@ export class PollDetailComponent implements OnInit, OnDestroy {
 
     close() {
         this.pollService.delete(this.poll.id + '_' + this.poll.name).subscribe();
+        window.history.back();
     }
 
     ngOnDestroy() {
