@@ -162,14 +162,21 @@ public class PollResource {
     public BlockchainDTO getPoll(@PathVariable String name) {
         log.debug("REST request to get Poll : {}", name);
         BlockchainDTO returnDTO = new BlockchainDTO();
+        Poll poll = pollService.findOne(name);
+        returnDTO.setPoll(poll);
         userService.getUserWithAuthoritiesByLogin(SecurityUtils.getCurrentUserLogin()).ifPresent(user -> {
             BlockchainUser blockchainUser = blockchainUserService.findOne(user.getId().toString());
             blockchainUser.setId(user.getId());
             returnDTO.setUser(blockchainUser);
+            if (poll.getStatus() == 0) {
+                for (String inactivePoll : blockchainUser.getInactivePollsAsList()) {
+                    if (inactivePoll.equals(poll.getChainCodeName())) {
+                        pollService.deactivatePoll(user.getId().toString(), poll.getChainCodeName());
+                    }
+                }
+            }
         });
 
-        Poll poll = pollService.findOne(name);
-        returnDTO.setPoll(poll);
         log.debug("Poll after findOne(): \n" + poll);
         return returnDTO;
 //        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(poll));
