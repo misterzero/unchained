@@ -35,6 +35,7 @@ export class PollComponent implements OnInit, OnDestroy {
             (res: ResponseWrapper) => this.onError(res.json)
         );
     }
+
     ngOnInit() {
         this.loadAll();
         this.principal.identity().then((account) => {

@@ -2,6 +2,7 @@ package com.ippon.unchained.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import com.ippon.unchained.domain.ActivePoll;
+import com.ippon.unchained.domain.BlockchainDTO;
 import com.ippon.unchained.domain.BlockchainUser;
 import com.ippon.unchained.domain.Poll;
 import com.ippon.unchained.security.SecurityUtils;
@@ -158,12 +159,20 @@ public class PollResource {
      */
     @GetMapping("/polls/{name}")
     @Timed
-    public ResponseEntity<Poll> getPoll(@PathVariable String name) {
+    public BlockchainDTO getPoll(@PathVariable String name) {
         log.debug("REST request to get Poll : {}", name);
+        BlockchainDTO returnDTO = new BlockchainDTO();
+        userService.getUserWithAuthoritiesByLogin(SecurityUtils.getCurrentUserLogin()).ifPresent(user -> {
+            BlockchainUser blockchainUser = blockchainUserService.findOne(user.getId().toString());
+            blockchainUser.setId(user.getId());
+            returnDTO.setUser(blockchainUser);
+        });
+
         Poll poll = pollService.findOne(name);
-        poll.setChainCodeName(poll.getName());
+        returnDTO.setPoll(poll);
         log.debug("Poll after findOne(): \n" + poll);
-        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(poll));
+        return returnDTO;
+//        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(poll));
     }
 
 //    /**

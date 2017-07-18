@@ -7,6 +7,7 @@ import { EventManager  } from 'ng-jhipster';
 
 import { Poll } from './poll.model';
 import { PollService } from './poll.service';
+import {BlockchainUser} from '../blockchain-user/blockchain-user.model';
 
 @Component({
     selector: 'jhi-poll-detail',
@@ -15,6 +16,7 @@ import { PollService } from './poll.service';
 export class PollDetailComponent implements OnInit, OnDestroy {
 
     poll: Poll;
+    user: BlockchainUser;
     private subscription: Subscription;
     private eventSubscriber: Subscription;
     options: any[];
@@ -46,7 +48,7 @@ export class PollDetailComponent implements OnInit, OnDestroy {
     // }
 
     vote(option) {
-        const ballot: string[] = [this.poll.id + "_" + this.poll.name, option];
+        const ballot: string[] = [this.poll.id + '_' + this.poll.name, option];
         console.log('Vote for poll: ' + this.poll.name);
         console.log(ballot.join());
         this.subscribeToVoteResponse(this.pollService.vote(ballot.join()), true);
@@ -76,13 +78,14 @@ export class PollDetailComponent implements OnInit, OnDestroy {
     }
 
     load(id) {
-        this.pollService.find(id).subscribe((poll) => {
-            this.poll = poll;
-            const array = JSON.parse(poll.options);
+        this.pollService.find(id).subscribe((blockchainDTO) => {
+            this.poll = blockchainDTO.poll;
+            this.user = blockchainDTO.user;
+            const array = JSON.parse(this.poll.options);
             this.options = array;
         });
-
     }
+
     previousState() {
         window.history.back();
     }

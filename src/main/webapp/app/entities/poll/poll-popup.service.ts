@@ -21,15 +21,15 @@ export class PollPopupService {
         this.isOpen = true;
 
         if (id) {
-            this.pollService.find(id).subscribe((poll) => {
-                if (poll.expiration) {
-                    poll.expiration = {
-                        year: poll.expiration.getFullYear(),
-                        month: poll.expiration.getMonth() + 1,
-                        day: poll.expiration.getDate()
+            this.pollService.find(id).subscribe((blockchainDTO) => {
+                if (blockchainDTO.poll.expiration) {
+                    blockchainDTO.poll.expiration = {
+                        year: blockchainDTO.poll.expiration.getFullYear(),
+                        month: blockchainDTO.poll.expiration.getMonth() + 1,
+                        day: blockchainDTO.poll.expiration.getDate()
                     };
                 }
-                this.pollModalRef(component, poll);
+                this.pollModalRef(component, blockchainDTO.poll);
             });
         } else {
             return this.pollModalRef(component, new Poll());

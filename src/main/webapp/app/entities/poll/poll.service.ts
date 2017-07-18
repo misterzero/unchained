@@ -5,6 +5,7 @@ import { DateUtils } from 'ng-jhipster';
 
 import { Poll } from './poll.model';
 import { ResponseWrapper, createRequestOption } from '../../shared';
+import {BlockchainDTO} from './blockchaindto.model';
 
 @Injectable()
 export class PollService {
@@ -45,7 +46,7 @@ export class PollService {
         });
     }
 
-    find(id: number): Observable<Poll> {
+    find(id: number): Observable<BlockchainDTO> {
         return this.http.get(`${this.resourceUrl}/${id}`).map((res: Response) => {
             const jsonResponse = res.json();
             console.log('JsonResponse:' + jsonResponse);
