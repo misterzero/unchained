@@ -7,6 +7,7 @@ export class Poll {
         public voters?: string,
         public owner?: string,
         public chainCodeName?: string,
+        public status?: number,
     ) {
     }
 }
