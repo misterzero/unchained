@@ -42,8 +42,6 @@ export class PollDetailComponent implements OnInit, OnDestroy {
     vote(option) {
         this.isVoting = true;
         const ballot: string[] = [this.poll.chainCodeName, option];
-        console.log('Vote for poll: ' + this.poll.name);
-        console.log(ballot.join());
         this.subscribeToVoteResponse(this.pollService.vote(ballot.join()), true);
     }
 
@@ -82,7 +80,6 @@ export class PollDetailComponent implements OnInit, OnDestroy {
             this.inactivePolls = this.user.inactivePolls.replace('[', '').replace(']', '').replace(' ', '').split(',');
             const array = JSON.parse(this.poll.options);
             this.options = array;
-            console.log(this.poll);
         });
     }
 
@@ -123,7 +120,6 @@ export class PollDetailComponent implements OnInit, OnDestroy {
             return false;
         }
         let isVoteActive = false;
-        console.log(this.checkInactive());
         if (this.checkInactive() === false) {
             isVoteActive = true;
         }

@@ -16,11 +16,9 @@ export class PollService {
 
     create(poll: Poll): Observable<Poll> {
         const copy = this.convert(poll);
-        console.log('Poll:' + poll);
         return this.http.post(this.resourceUrl, copy).map((res: Response) => {
             const jsonResponse = res.json();
             this.convertItemFromServer(jsonResponse);
-            console.log(jsonResponse);
             return jsonResponse;
         });
     }
@@ -35,13 +33,11 @@ export class PollService {
     }
 
     vote(ballot: string): Observable<Poll> {
-        console.log('Vote PollService: ' + ballot);
         // const copy = this.convertBallot(ballot);
         // console.log('Post: '+this.http.post('vote',ballot));
         return this.http.post('api/vote', ballot).map((res: Response) => {
             const jsonResponse = res.json();
             this.convertItemFromServer(jsonResponse);
-            console.log('jsonResonse: ' + jsonResponse);
             return jsonResponse;
         });
     }
@@ -49,7 +45,6 @@ export class PollService {
     find(id: number): Observable<BlockchainDTO> {
         return this.http.get(`${this.resourceUrl}/${id}`).map((res: Response) => {
             const jsonResponse = res.json();
-            console.log('JsonResponse:' + jsonResponse);
             this.convertItemFromServer(jsonResponse);
             return jsonResponse;
         });
