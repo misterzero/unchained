@@ -45,8 +45,6 @@ export class PollDetailComponent implements OnInit, OnDestroy {
         console.log('Vote for poll: ' + this.poll.name);
         console.log(ballot.join());
         this.subscribeToVoteResponse(this.pollService.vote(ballot.join()), true);
-        window.history.back();
-        window.location.reload();
     }
 
     private subscribeToVoteResponse(result: Observable<string>, isCreated: boolean) {
@@ -57,6 +55,7 @@ export class PollDetailComponent implements OnInit, OnDestroy {
     private onSaveSuccess(result: Poll, isCreated: boolean) {
         console.log('Save success');
         this.isVoting = false;
+        this.previousState();
         this.eventManager.broadcast({ name: 'pollListModification', content: 'OK'});
     }
 
@@ -69,6 +68,7 @@ export class PollDetailComponent implements OnInit, OnDestroy {
         }
         this.onError(error);
         this.isVoting = false;
+        this.previousState();
     }
 
     private onError(error) {
@@ -99,7 +99,7 @@ export class PollDetailComponent implements OnInit, OnDestroy {
         this.subscription.unsubscribe();
         this.eventManager.destroy(this.eventSubscriber);
     }
-    
+
     checkInactive(): Boolean {
         let res = false;
         for (let p = 0; p < this.inactivePolls.length; p++) {
@@ -109,11 +109,11 @@ export class PollDetailComponent implements OnInit, OnDestroy {
         }
         return res;
     }
-    
+
     checkOwner(): Boolean {
         let res = false;
-        if(this.user.id.toString() === this.poll.owner.replace('"', '').replace('"', '')){
-            res=true;
+        if (this.user.id.toString() === this.poll.owner.replace('"', '').replace('"', '')) {
+            res = true;
         }
         return res;
     }
