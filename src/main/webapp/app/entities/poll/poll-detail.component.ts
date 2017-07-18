@@ -117,16 +117,16 @@ export class PollDetailComponent implements OnInit, OnDestroy {
         }
         return res;
     }
-    
+
     isVoteClosedAndMyVoteStillActive(): Boolean {
-    	if( this.poll.status == 1 ){
-    		return false;
-    	}
+        if (this.poll.status === 1 ) {
+            return false;
+        }
         let isVoteActive = false;
-        console.log(this.checkInactive())
-        if ( this.checkInactive()==false){
+        console.log(this.checkInactive());
+        if (this.checkInactive() === false) {
             isVoteActive = true;
-    	}
+        }
         return isVoteActive;
     }
 
