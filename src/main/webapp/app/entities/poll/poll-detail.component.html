@@ -22,10 +22,10 @@
 	            		<tbody>
 		            		<tr>
 			            		<td>
-					                <button *ngIf="poll.status==1" (click)="vote(option.name)" [disabled]="isVoting" type="button" class="btn btn-primary">
+					                <button *ngIf="poll.status==1 && checkInactive()==false" (click)="vote(option.name)" [disabled]="isVoting" type="button" class="btn btn-primary">
 					                    <span class="fa"></span>&nbsp;<span>{{option.name}}</span>
 					                </button>
-					                <div *ngIf="poll.status==0" class="btn btn-primary">
+					                <div *ngIf="poll.status==0 || checkInactive()==true" class="btn btn-primary">
 					                	<span class="fa"></span>&nbsp;<span>{{option.name}}</span>
 					                </div>
 				                </td>
@@ -59,7 +59,7 @@
         <span class="fa fa-pencil"></span>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
     </button>
 
-    <button type="button"
+    <button *ngIf="checkOwner()==true" type="button"
             (click)="close()"
             class="btn btn-danger">
         <span class="fa fa-remove"></span>&nbsp;<span jhiTranslate="entity.action.close"> Close</span>

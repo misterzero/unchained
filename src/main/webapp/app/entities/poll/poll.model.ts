@@ -5,6 +5,8 @@ export class Poll {
         public options?: string,
         public expiration?: any,
         public voters?: string,
+        public owner?: string,
+        public chainCodeName?: string,
     ) {
     }
 }

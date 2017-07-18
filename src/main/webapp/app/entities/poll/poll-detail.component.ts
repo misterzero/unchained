@@ -21,6 +21,7 @@ export class PollDetailComponent implements OnInit, OnDestroy {
     private eventSubscriber: Subscription;
     isVoting: Boolean;
     options: any[];
+    inactivePolls: string[];
 
     constructor(
         private eventManager: EventManager,
@@ -39,10 +40,7 @@ export class PollDetailComponent implements OnInit, OnDestroy {
     }
 
     vote(option) {
-<<<<<<< HEAD
-=======
         this.isVoting = true;
->>>>>>> dev
         const ballot: string[] = [this.poll.id + '_' + this.poll.name, option];
         console.log('Vote for poll: ' + this.poll.name);
         console.log(ballot.join());
@@ -81,8 +79,10 @@ export class PollDetailComponent implements OnInit, OnDestroy {
         this.pollService.find(id).subscribe((blockchainDTO) => {
             this.poll = blockchainDTO.poll;
             this.user = blockchainDTO.user;
+            this.inactivePolls = this.user.inactivePolls.replace('[', '').replace(']', '').replace(' ', '').split(',');
             const array = JSON.parse(this.poll.options);
             this.options = array;
+            console.log(this.poll);
         });
     }
 
@@ -98,6 +98,24 @@ export class PollDetailComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         this.subscription.unsubscribe();
         this.eventManager.destroy(this.eventSubscriber);
+    }
+    
+    checkInactive(): Boolean {
+        let res = false;
+        for (let p = 0; p < this.inactivePolls.length; p++) {
+            if (this.poll.chainCodeName === this.inactivePolls[p].replace('"', '').replace('"', '')) {
+                res = true;
+            }
+        }
+        return res;
+    }
+    
+    checkOwner(): Boolean {
+        let res = false;
+        if(this.user.id.toString() === this.poll.owner.replace('"', '').replace('"', '')){
+            res=true;
+        }
+        return res;
     }
 
     registerChangeInPolls() {
