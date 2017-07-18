@@ -95,10 +95,10 @@ public class PollServiceImpl implements PollService{
     /**
      * Cast a vote.
      *
-     * @param ballot = ["user", "1_testPoll", "opt1"]
+     * @param userId,poll,opt = ["user", "1_testPoll", "opt1"]
      */
-    public void vote(String ballot) {
-        pollRepository.vote(ballot);
+    public void vote(Long userId, String poll, String opt) {
+        pollRepository.vote(userId,poll,opt);
     }
 
     /**

@@ -177,13 +177,9 @@ public class PollRepositoryImpl implements PollRepository {
         return null;
     }
 
-    public void vote(String ballot) {
+    public void vote(Long userId, String pollName, String option) {
         try {
-            Util.out("Now query chain code for the value of %s.",ballot);
-            String[] arr = ballot.replace("[","").replace("]","").replace(" ","").split(",");
-            // arr[0] = userId
-            // arr[1] = pollId
-            // arr[2] = option
+            Util.out("Now query chain code for the value of %d,%s,%s.",userId,pollName,option);
             Collection<ProposalResponse> successful = new LinkedList<>();
             Collection<ProposalResponse> failed = new LinkedList<>();
 
@@ -197,7 +193,7 @@ public class PollRepositoryImpl implements PollRepository {
             // transactionProposalRequest.setArgs(new String[] {"move", "a", "b", entities.iterator().next().getValue().toString()});
             // but .getValue() doesn't resolve when run against a Poll object, so it was changed to the line below.
             // It still likely does not complete as expected, but it passes a test for compiling this way!
-            transactionProposalRequest.setArgs(new String[] {"vote", arr[0], arr[1], arr[2]});
+            transactionProposalRequest.setArgs(new String[] {"vote", userId.toString(), pollName, option});
 
             Map<String, byte[]> tm2 = new HashMap<>();
             tm2.put("HyperLedgerFabric", "TransactionProposalRequest:JavaSDK".getBytes(UTF_8));
@@ -205,7 +201,7 @@ public class PollRepositoryImpl implements PollRepository {
             tm2.put("result", ":)".getBytes(UTF_8));  /// This should be returned see chaincode.
             transactionProposalRequest.setTransientMap(tm2);
 
-            Util.out("sending transactionProposal to all peers with arguments: \"vote\",%s",ballot);
+            Util.out("sending transactionProposal to all peers with arguments: \"vote\",%d,%s,%s.",userId,pollName,option);
 
             Collection<ProposalResponse> transactionPropResp = chain.sendTransactionProposal(transactionProposalRequest, chain.getPeers());
             for (ProposalResponse response : transactionPropResp) {
@@ -220,8 +216,8 @@ public class PollRepositoryImpl implements PollRepository {
                 transactionPropResp.size(), successful.size(), failed.size());
             if (failed.size() > 0) {
                 ProposalResponse firstTransactionProposalResponse = failed.iterator().next();
-                LOGGER.error("Not enough endorsers for invoke(move a,b,100):" + failed.size() + " endorser error: " +
-                    firstTransactionProposalResponse.getMessage() +
+                LOGGER.error("Not enough endorsers for invoke(vote, "+userId+", "+pollName+", "+option+" " +
+                    failed.size() + " endorser error: " + firstTransactionProposalResponse.getMessage() +
                     ". Was verified: " + firstTransactionProposalResponse.isVerified());
             }
             Util.out("Successfully received transaction proposal responses.");
@@ -232,7 +228,6 @@ public class PollRepositoryImpl implements PollRepository {
             if (x != null) {
                 resultAsString = new String(x, "UTF-8");
             }
-            //      LOGGER.info(":)", resultAsString);
 
             LOGGER.info("Chaincode result status = " + resp.getChainCodeActionResponseStatus()); //Chaincode's status.
 
@@ -252,7 +247,7 @@ public class PollRepositoryImpl implements PollRepository {
             Util.out("Sending chain code transaction(move a,b,100) to orderer.");
             chain.sendTransaction(successful).get(6, TimeUnit.SECONDS);
 
-            deactivatePoll(arr[0], arr[1]);
+            deactivatePoll(userId.toString(), pollName);
 
         } catch (Exception e) {
             Util.out("Caught an exception while invoking chaincode");

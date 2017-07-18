@@ -41,9 +41,7 @@ export class PollDetailComponent implements OnInit, OnDestroy {
 
     vote(option) {
         this.isVoting = true;
-        const ballot: string[] = [this.poll.id + '_' + this.poll.name, option];
-        console.log('Vote for poll: ' + this.poll.name);
-        console.log(ballot.join());
+        const ballot: string[] = [this.poll.chainCodeName, option];
         this.subscribeToVoteResponse(this.pollService.vote(ballot.join()), true);
     }
 
