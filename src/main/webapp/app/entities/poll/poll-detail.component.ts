@@ -41,7 +41,7 @@ export class PollDetailComponent implements OnInit, OnDestroy {
 
     vote(option) {
         this.isVoting = true;
-        const ballot: string[] = [this.poll.id + '_' + this.poll.name, option];
+        const ballot: string[] = [this.poll.chainCodeName, option];
         console.log('Vote for poll: ' + this.poll.name);
         console.log(ballot.join());
         this.subscribeToVoteResponse(this.pollService.vote(ballot.join()), true);
@@ -91,7 +91,7 @@ export class PollDetailComponent implements OnInit, OnDestroy {
     }
 
     close() {
-        this.pollService.delete(this.poll.id + '_' + this.poll.name).subscribe();
+        this.pollService.delete(this.poll.chainCodeName).subscribe();
         window.history.back();
     }
 
