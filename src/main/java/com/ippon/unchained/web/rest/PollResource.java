@@ -169,8 +169,8 @@ public class PollResource {
             blockchainUser.setId(user.getId());
             returnDTO.setUser(blockchainUser);
             if (poll.getStatus() == 0) {
-                for (String inactivePoll : blockchainUser.getInactivePollsAsList()) {
-                    if (inactivePoll.equals(poll.getChainCodeName())) {
+                for (ActivePoll activePoll : blockchainUser.getActivePollsAsList()) {
+                    if (activePoll.getName().equals(poll.getChainCodeName())) {
                         pollService.deactivatePoll(user.getId().toString(), poll.getChainCodeName());
                     }
                 }
