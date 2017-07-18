@@ -17,6 +17,7 @@ export class PollDetailComponent implements OnInit, OnDestroy {
     poll: Poll;
     private subscription: Subscription;
     private eventSubscriber: Subscription;
+    isVoting: Boolean;
     options: any[];
 
     constructor(
@@ -28,25 +29,16 @@ export class PollDetailComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.options = [];
+        this.isVoting = false;
         this.subscription = this.route.params.subscribe((params) => {
             this.load(params['id']);
         });
         this.registerChangeInPolls();
     }
 
-    // showOptions() {
-    //     console.log('showOptions');
-    //     console.log(this.poll.options);
-    //     const json = JSON.parse(this.poll.options);
-    //     console.log('Length: ' + Object.keys(json).length);
-    //     for (let i = 0; i < Object.keys(json).length; i++) {
-    //         console.log(json[i].name);
-    //         this.options.push(json[i].name);
-    //     }
-    // }
-
     vote(option) {
-        const ballot: string[] = [this.poll.id + "_" + this.poll.name, option];
+        this.isVoting = true;
+        const ballot: string[] = [this.poll.id + '_' + this.poll.name, option];
         console.log('Vote for poll: ' + this.poll.name);
         console.log(ballot.join());
         this.subscribeToVoteResponse(this.pollService.vote(ballot.join()), true);
@@ -59,6 +51,8 @@ export class PollDetailComponent implements OnInit, OnDestroy {
 
     private onSaveSuccess(result: Poll, isCreated: boolean) {
         console.log('Save success');
+        this.isVoting = false;
+        this.eventManager.broadcast({ name: 'pollListModification', content: 'OK'});
     }
 
     private onSaveError(error) {
@@ -69,6 +63,7 @@ export class PollDetailComponent implements OnInit, OnDestroy {
             // error.message = error.;
         }
         this.onError(error);
+        this.isVoting = false;
     }
 
     private onError(error) {
