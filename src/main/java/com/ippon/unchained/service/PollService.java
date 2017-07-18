@@ -55,7 +55,16 @@ public interface PollService {
 
     /**
      * Cast vote for 'opt' by 'user' in 'poll'
+     *
      * @param ballot = ["user", "1_testPoll", "opt1"]
      */
     void vote(String ballot);
+
+    /**
+     * Move poll from a user's activePoll list to their inactivePoll list
+     *
+     * @param userId = ID of currently logged in user
+     * @param pollId = ChainCodeName of poll to deactivate
+     */
+    void deactivatePoll(String userId, String pollId);
 }

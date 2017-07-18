@@ -82,17 +82,32 @@ public class PollServiceImpl implements PollService{
     }
 
     /**
-     *  Close the  poll by id.
+     * Close poll by ID
      *
-     *  @param id the id of the entity
+     * @param pollId = ID of poll to close
+     * @param userId = ID of currently logged in user to be validated as owner of poll
      */
-    public void close(String id, Long userId) {
-        log.debug("Request to close Poll : {}", id);
-        pollRepository.close(id, userId);
+    public void close(String pollId, Long userId) {
+        log.debug("Request to close Poll : {}", pollId);
+        pollRepository.close(pollId, userId);
     }
 
-    @Override
+    /**
+     * Cast a vote.
+     *
+     * @param ballot = ["user", "1_testPoll", "opt1"]
+     */
     public void vote(String ballot) {
         pollRepository.vote(ballot);
+    }
+
+    /**
+     * Move a poll from a user's ActivePoll list to their InactivePoll list.
+     *
+     * @param userId = ID of currently logged in user
+     * @param pollId = ChainCodeName of poll to deactivate
+     */
+    public void deactivatePoll(String userId, String pollId) {
+        pollRepository.deactivatePoll(userId, pollId);
     }
 }
