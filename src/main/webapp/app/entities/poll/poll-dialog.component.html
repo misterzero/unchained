@@ -40,7 +40,10 @@
 				for="field_options">Voters</label>
 			<button type="button" class="btn btn-default" (click)="addNewVoter()"
 				*ngIf="last">Add another voter</button>
-			<select name="voterName_{{i}}" class="form-control" [(ngModel)]="voter.text">
+			<select *ngIf="first" required name="voterName_{{i}}" class="form-control" [(ngModel)]="voter.text">
+        		<option *ngFor="let user of users | slice:2" [ngValue]="user[0]">{{user[1]+" "+user[2]}}</option>
+      		</select>
+      		<select *ngIf="!first" name="voterName_{{i}}" class="form-control" [(ngModel)]="voter.text">
         		<option *ngFor="let user of users | slice:2" [ngValue]="user[0]">{{user[1]+" "+user[2]}}</option>
       		</select>
 		</div>

@@ -49,6 +49,7 @@ export class PollDialogComponent implements OnInit {
     }
 
     save() {
+    	if(this)
         this.isSaving = true;
         this.setPollOptions();
         this.setPollVoters();
@@ -72,7 +73,10 @@ export class PollDialogComponent implements OnInit {
             return option.text;
         });
         // Writes just the 'names' from the options object array into a csv string
-        this.poll.options = Array.prototype.map.call(options, (s) => s.text).toString();
+        let arr = (Array.prototype.map.call(options, (s) => s.text).toString()).split(",");
+        var set = new Set(arr);
+        arr = Array.from(set);
+        this.poll.options = arr.toString();
     }
 
     removeLastOption() {
