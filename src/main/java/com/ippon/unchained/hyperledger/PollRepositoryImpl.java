@@ -362,7 +362,28 @@ public class PollRepositoryImpl implements PollRepository {
         try {
         	Collection<ProposalResponse> successful = new LinkedList<>();
             Collection<ProposalResponse> failed = new LinkedList<>();
-
+            String voters = poll.getVoters()+","+poll.getOwner();
+//            boolean isOwnerInside = false;
+//            if(voters.contains(",")){
+//            	 String[] votersParsed;
+//            	votersParsed = voters.split(",");
+//            	LOGGER.debug(votersParsed.toString());
+//            	 for(int k=0;k<votersParsed.length;k++){
+//                 	if(votersParsed[k].equals(poll.getOwner())){
+//                 		isOwnerInside = true;
+//                 	}
+//                 }
+//            	 if(isOwnerInside == false){
+//                 	voters =poll.getOwner();
+//     	            for(int i=0;i<votersParsed.length;i++){
+//     	            	voters+=","+votersParsed[i];
+//     	            }
+//                 }
+//            } else{
+//            	if(!voters.equals(poll.getOwner())){
+//            		voters+=","+poll.getOwner();
+//            	}
+//            }
             LOGGER.debug("Poll JSON: \n" + poll.toJSONString());
 			client.setUserContext(TestConfigHelper.getSampleOrgByName("peerOrg1", testSampleOrgs).getPeerAdmin());
 			/// Send transaction proposal to all peers
@@ -374,7 +395,7 @@ public class PollRepositoryImpl implements PollRepository {
 	        // but .getValue() doesn't resolve when run against a Poll object, so it was changed to the line below.
 	        // It still likely does not complete as expected, but it passes a test for compiling this way!
 	        // TODO
-	        transactionProposalRequest.setArgs(new String[] {"addNewActivePollToManyUsers", poll.getVoters(), poll.getChainCodeName()});
+	        transactionProposalRequest.setArgs(new String[] {"addNewActivePollToManyUsers", voters, poll.getChainCodeName()});
 
 	        Map<String, byte[]> tm2 = new HashMap<>();
 	        tm2.put("HyperLedgerFabric", "TransactionProposalRequest:JavaSDK".getBytes(UTF_8));
@@ -564,9 +585,6 @@ public class PollRepositoryImpl implements PollRepository {
         accounts.add(arg0);
 //        save(accounts);
         List<S> saved = new ArrayList<S>();
-        LOGGER.debug("HELLO");
-        LOGGER.debug(accounts.get(0));
-        LOGGER.debug(accounts.get(0).getName());
         saved = save(accounts);
         LOGGER.debug("Account 1 id: " + saved.get(0).getName());
         return saved.get(0);
