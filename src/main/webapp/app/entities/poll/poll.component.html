@@ -18,17 +18,17 @@
             <tr>
                 <th><span jhiTranslate="global.field.id">ID</span></th>
                 <th><span jhiTranslate="unchainedApp.poll.name">Name</span></th>
-                <th><span jhiTranslate="unchainedApp.poll.options">Options</span></th>
-                <th><span jhiTranslate="unchainedApp.poll.expiration">Expiration</span></th>
+<!--                 <th><span jhiTranslate="unchainedApp.poll.options">Options</span></th> -->
+<!--                 <th><span jhiTranslate="unchainedApp.poll.expiration">Expiration</span></th> -->
                 <th></th>
             </tr>
             </thead>
             <tbody>
             <tr *ngFor="let activePoll of activePolls ;trackBy: trackId">
                 <td><a [routerLink]="['../poll', activePoll.chainCodeName ]">{{activePoll.id}}</a></td>
-                <td>{{activePoll.name}}</td>
-                <td>{{activePoll.options}}</td>
-                <td>{{activePoll.expiration | date:'mediumDate'}}</td>
+                <td><span style="font-variant:small-caps">{{activePoll.name}}</span></td>
+<!--                 <td>{{activePoll.options}}</td> -->
+<!--                 <td>{{activePoll.expiration | date:'mediumDate'}}</td> -->
                 <td class="text-right">
                     <div class="btn-group flex-btn-group-container">
                         <button type="submit"
@@ -61,17 +61,17 @@
             <tr>
                 <th><span jhiTranslate="global.field.id">ID</span></th>
                 <th><span jhiTranslate="unchainedApp.poll.name">Name</span></th>
-                <th><span jhiTranslate="unchainedApp.poll.options">Options</span></th>
-                <th><span jhiTranslate="unchainedApp.poll.expiration">Expiration</span></th>
+<!--                 <th><span jhiTranslate="unchainedApp.poll.options">Options</span></th> -->
+<!--                 <th><span jhiTranslate="unchainedApp.poll.expiration">Expiration</span></th> -->
                 <th></th>
             </tr>
             </thead>
             <tbody>
             <tr *ngFor="let inactivePoll of inactivePolls ;trackBy: trackId">
                 <td><a [routerLink]="['../poll', inactivePoll.chainCodeName ]">{{inactivePoll.id}}</a></td>
-                <td>{{inactivePoll.name}}</td>
-                <td>{{inactivePoll.options}}</td>
-                <td>{{inactivePoll.expiration | date:'mediumDate'}}</td>
+                <td><span style="font-variant:small-caps">{{inactivePoll.name}}</span></td>
+<!--                 <td>{{inactivePoll.options}}</td> -->
+<!--                 <td>{{inactivePoll.expiration | date:'mediumDate'}}</td> -->
                 <td class="text-right">
                     <div class="btn-group flex-btn-group-container">
                         <button type="submit"

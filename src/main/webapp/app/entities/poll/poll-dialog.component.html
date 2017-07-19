@@ -18,7 +18,7 @@
 		<div class="form-group">
 			<label class="form-control-label"
 				jhiTranslate="unchainedApp.poll.name" for="field_name">Name</label>
-			<input type="text" class="form-control" name="name" id="field_name"
+			<input required type="text" class="form-control" name="name" id="field_name"
 				[(ngModel)]="poll.name" />
 		</div>
 		<div class="form-group"
@@ -28,7 +28,9 @@
 				for="field_options">Options</label>
 			<button type="button" class="btn btn-default"
 				(click)="addNewOption()" *ngIf="last">Add another choice</button>
-			<input type="text" class="form-control" name="optionName_{{i}}"
+			<input *ngIf="first" required type="text" class="form-control" name="optionName_{{i}}"
+				id="field_options" [(ngModel)]="option.text" />
+			<input *ngIf="!first" type="text" class="form-control" name="optionName_{{i}}"
 				id="field_options" [(ngModel)]="option.text" />
 		</div>
 		<div class="form-group"
@@ -39,7 +41,7 @@
 			<button type="button" class="btn btn-default" (click)="addNewVoter()"
 				*ngIf="last">Add another voter</button>
 			<select name="voterName_{{i}}" class="form-control" [(ngModel)]="voter.text">
-        		<option *ngFor="let user of users" [ngValue]="user[0]">{{user[1]+" "+user[2]}}</option>
+        		<option *ngFor="let user of users | slice:2" [ngValue]="user[0]">{{user[1]+" "+user[2]}}</option>
       		</select>
 		</div>
 		<div class="modal-footer">

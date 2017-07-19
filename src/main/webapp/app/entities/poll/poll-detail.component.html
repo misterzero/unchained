@@ -6,7 +6,7 @@
     <dl class="row-md jh-entity-details">
         <dt><span jhiTranslate="unchainedApp.poll.name">Name</span></dt>
         <dd>
-            <span>{{poll.name}}</span>
+            <span style="font-variant: small-caps">{{poll.name}}</span>
         </dd>
         <dt><span jhiTranslate="unchainedApp.poll.options">Options</span></dt>
         <dd>
@@ -46,20 +46,21 @@
         </dd>
     </dl>
 
+	<div *ngIf="poll.status==0" style="padding-bottom:10px"><span style="color:red; font-variant: small-caps; font-weight:bold;">This poll has been closed</span></div>
     <button type="submit"
             (click)="previousState()"
             class="btn btn-info">
         <span class="fa fa-arrow-left"></span>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
     </button>
 
-    <button type="button"
-            [routerLink]="['/', { outlets: { popup: 'poll/'+ poll.id + '/edit'} }]"
-            replaceUrl="true"
-            class="btn btn-primary">
-        <span class="fa fa-pencil"></span>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
-    </button>
+<!--     <button type="button" -->
+<!--             [routerLink]="['/', { outlets: { popup: 'poll/'+ poll.id + '/edit'} }]" -->
+<!--             replaceUrl="true" -->
+<!--             class="btn btn-primary"> -->
+<!--         <span class="fa fa-pencil"></span>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span> -->
+<!--     </button> -->
 
-    <button *ngIf="checkOwner()==true" type="button"
+    <button *ngIf="checkOwner()==true && poll.status==1" type="button"
             (click)="close()"
             class="btn btn-danger">
         <span class="fa fa-remove"></span>&nbsp;<span jhiTranslate="entity.action.close"> Close</span>
