@@ -56,9 +56,9 @@ public interface PollService {
     /**
      * Cast vote for 'opt' by 'user' in 'poll'
      *
-     * @param ballot = ["user", "1_testPoll", "opt1"]
+     * @param userId, poll, opt = ["user", "1_testPoll", "opt1"]
      */
-    void vote(String ballot);
+    void vote(Long userId, String poll, String opt);
 
     /**
      * Move poll from a user's activePoll list to their inactivePoll list
