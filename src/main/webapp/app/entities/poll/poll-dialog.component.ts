@@ -112,9 +112,7 @@ export class PollDialogComponent implements OnInit {
     }
 
     private onSuccess(data, headers) {
-        console.log(data[0]);
         this.users = data;
-        console.log(this.users);
     }
 
     private onSaveSuccess(result: Poll, isCreated: boolean) {

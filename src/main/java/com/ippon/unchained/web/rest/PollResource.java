@@ -98,13 +98,16 @@ public class PollResource {
     @Timed
     public ResponseEntity<Void> votePoll(@RequestBody String ballot) {
         log.debug("Rest request to cast ballot : {}", ballot);
-        ArrayList<String> ballotList = new ArrayList<String>(Arrays.asList(ballot.split(",")));
+        final Long[] userID = new Long[1];
+        String pollName, pollOption;
+        pollName = ballot.split(",")[0];
+        pollOption = ballot.split(",")[1];
         userService.getUserWithAuthoritiesByLogin(SecurityUtils.getCurrentUserLogin()).ifPresent(user -> {
-            ballotList.add(0,user.getId().toString());
+            userID[0] = user.getId();
         });
-        log.debug("ballotList: " + ballotList);
-        pollService.vote(ballotList.toString());
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, ballotList.get(1))).build();
+        log.debug("User:%d, PollName:%s, PollOpt:%s",userID[0],pollName,pollOption);
+        pollService.vote(userID[0],pollName,pollOption);
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, ballot)).build();
 
     }
 

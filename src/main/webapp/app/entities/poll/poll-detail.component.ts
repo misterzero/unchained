@@ -41,9 +41,7 @@ export class PollDetailComponent implements OnInit, OnDestroy {
 
     vote(option) {
         this.isVoting = true;
-        const ballot: string[] = [this.poll.id + '_' + this.poll.name, option];
-        console.log('Vote for poll: ' + this.poll.name);
-        console.log(ballot.join());
+        const ballot: string[] = [this.poll.chainCodeName, option];
         this.subscribeToVoteResponse(this.pollService.vote(ballot.join()), true);
     }
 
@@ -82,7 +80,6 @@ export class PollDetailComponent implements OnInit, OnDestroy {
             this.inactivePolls = this.user.inactivePolls.replace('[', '').replace(']', '').replace(' ', '').split(',');
             const array = JSON.parse(this.poll.options);
             this.options = array;
-            console.log(this.poll);
         });
     }
 
@@ -91,7 +88,7 @@ export class PollDetailComponent implements OnInit, OnDestroy {
     }
 
     close() {
-        this.pollService.delete(this.poll.id + '_' + this.poll.name).subscribe();
+        this.pollService.delete(this.poll.chainCodeName).subscribe();
         window.history.back();
     }
 
@@ -117,7 +114,18 @@ export class PollDetailComponent implements OnInit, OnDestroy {
         }
         return res;
     }
-    
+
+    isVoteClosedAndMyVoteStillActive(): Boolean {
+        if (this.poll.status === 1 ) {
+            return false;
+        }
+        let isVoteActive = false;
+        if (this.checkInactive() === false) {
+            isVoteActive = true;
+        }
+        return isVoteActive;
+    }
+
     registerChangeInPolls() {
         this.eventSubscriber = this.eventManager.subscribe(
             'pollListModification',
