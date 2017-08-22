@@ -1,31 +1,69 @@
-# to start a fabric network
-In a terminal navigate to <project home>/src/test/fixture/sdkintegration
-run ./fabric.sh up
-
-A local fabric instance should be running
-
-To stop the instance, run ./fabric.sh down
-
-
-# voter-unchained
+# unchained
 This application was generated using JHipster 4.5.3, you can find documentation and help at [https://jhipster.github.io/documentation-archive/v4.5.3](https://jhipster.github.io/documentation-archive/v4.5.3).
 
 ## Development
 
 Before you can build this project, you must install and configure the following dependencies on your machine:
 
+#### Hyperledger Fabric Network (configuration requirements)
+1. [Docker][]: We use docker to stand up the peers and certificate authorites used in the Hyperledger Fabric network.
+2. [GO][]: We use the GO programming language to write the smart contracts used the Hyperledger Fabric network. 
+    - You will need to setup and configure your environment to work with the GO programming language.
+
+    Setup GO workspace:
+    
+        mkdir $HOME/go
+        cd $HOME/go
+        mkdir bin pkg src
+        
+    Setup GO environment:
+        
+        export GOPATH="$HOME/go"
+        export PATH="$PATH:$GOPATH/bin"
+    
+#### Jhipster (configuration requirements)
 1. [Node.js][]: We use Node to run a development web server and build the project.
    Depending on your system, you can install Node either from source or as a pre-packaged bundle.
 2. [Yarn][]: We use Yarn to manage Node dependencies.
-   Depending on your system, you can install Yarn either from source or as a pre-packaged bundle.
+   Depending on your system, you can install Yarn either from source or as a pre-packaged bundle
 
+#### Hyperledger Fabric Network (development requirements)
+Create the below directory in your $GOPATH
+
+    $GOPATH/src/github.com/chaincode_fileshare/
+
+Our chain code is stopred in the [chain-code][] project. In order to make sure this project pulls down the correct chaincode, pull the [chain-code][] project into the above directory. Once you have it pulled down, you should have all of your chaincode in your $GOPATH at:
+
+    $GOPATH/src/github.com/chaincode_fileshare/chain-code
+
+Navigate back to where this project is stored and open the below directory in its own terminal window:
+
+    <this-project's-root>/src/test/fixture/sdkintegration
+    
+Then, run the following command to start the network.
+
+    ./fabric.sh up
+    
+##### Note
+The first time you run the below command, it will take time to pull down the docker images and stand up the docker containers. Once the last container is created, and during all following executions of this command, it takes a short time for the network to be ready. An indicator that the network is up can be seen by a long list of messages reading 
+    
+    " ... [flogging] setModuleLevel -> ... "
+    
+To bring the network down, run the following command.
+
+    ./fabric.sh down
+    
+At this time, you will need to bring the network down and back up again whenever you make changes to your GO chaincode. A quick execution of this can be done by running the following command.
+
+    ./fabric.sh restart
+
+#### JHipster (development requirements)
 After installing Node, you should be able to run the following command to install development tools.
 You will only need to run this command when dependencies change in [package.json](package.json).
 
     yarn install
 
 We use yarn scripts and [Webpack][] as our build system.
-
 
 Run the following commands in two separate terminals to create a blissful development experience where your browser
 auto-refreshes when files change on your hard drive.
@@ -107,7 +145,6 @@ Unit tests are run by [Karma][] and written with [Jasmine][]. They're located in
     yarn test
 
 
-
 For more information, refer to the [Running tests page][].
 
 ## Using Docker to simplify development (optional)
@@ -148,6 +185,9 @@ To configure CI for your project, run the ci-cd sub-generator (`jhipster ci-cd`)
 
 [Node.js]: https://nodejs.org/
 [Yarn]: https://yarnpkg.org/
+[Docker]: https://www.docker.com/community-edition#/download
+[GO]: https://golang.org/doc/install
+[GO with brew]: http://todsul.com/tech/setup-golang-on-mac-os-x/
 [Webpack]: https://webpack.github.io/
 [Angular CLI]: https://cli.angular.io/
 [BrowserSync]: http://www.browsersync.io/
@@ -156,3 +196,5 @@ To configure CI for your project, run the ci-cd sub-generator (`jhipster ci-cd`)
 [Protractor]: https://angular.github.io/protractor/
 [Leaflet]: http://leafletjs.com/
 [DefinitelyTyped]: http://definitelytyped.org/
+
+[chain-code]: https://gitlab.ippon.fr/unchained/chain-code
